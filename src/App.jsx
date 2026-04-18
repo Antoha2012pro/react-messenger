@@ -28,17 +28,19 @@ const chats = [
 ];
 
 const initialMessages = [
-  { id: "m1", chatId: "c1", senderId: "u1", text: "Привет" },
-  { id: "m2", chatId: "c1", senderId: "u2", text: "Привет!" },
-  { id: "m3", chatId: "c2", senderId: "u3", text: "Ты тут?" },
+  { id: "m1", chatId: "c1", senderId: "u1", text: "Привет", createdAt: "2026-04-18T17:11:26.542Z", },
+  { id: "m2", chatId: "c1", senderId: "u2", text: "Привет!", createdAt: "2026-04-18T17:12:26.542Z", },
+  { id: "m3", chatId: "c2", senderId: "u3", text: "Ты тут?", createdAt: "2026-04-18T17:14:26.542Z", },
 ];
 
 function App() {
   const [theme, setTheme] = useState("dark");
-  const [activeChatId, setActiveChatId] = useState("c1");
+  const [activeChatId, setActiveChatId] = useState("c2");
   const [messages, setMessages] = useState(initialMessages);
   // console.log(messages);
   // console.log(activeChatId);
+  
+  
 
   const toggleTheme = () => {
     setTheme(prev => (prev === "dark" ? "light" : "dark"));

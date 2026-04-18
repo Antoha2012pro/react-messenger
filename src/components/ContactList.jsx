@@ -1,3 +1,5 @@
+import ProfileImg from "./ProfileImg";
+
 const ContactList = ({
     chats,
     users,
@@ -28,32 +30,14 @@ const ContactList = ({
                         }}
                     >
                         <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 16, padding: "12px 0 12px 24px", width: "100%", backgroundColor: activeChatId === chat.id ? "var(--сontact-bg-color)" : "transparent", }}>
-                            <div
-                                style={{
-                                    width: 64,
-                                    height: 64,
-                                    borderRadius: "50%",
-                                    overflow: "hidden",
-                                    border: "1px solid #4E4E4E",
-                                    backgroundColor: "#00000060",
-                                    flexShrink: 0,
-                                }}
-                            >
-                                <img
-                                    src={otherUser.avatar}
-                                    alt="Avatar"
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "cover",
-                                        objectPosition: "center",
-                                        display: "block",
-                                    }}
-                                />
-                            </div>
+                            <ProfileImg url={otherUser.avatar} />
                             <div className="chat-info" style={{ position: "relative", width: "100%", textAlign: "start" }}>
                                 <h2 style={{ color: "var(--title)", width: "100%", maxWidth: "200px" }}>{otherUser.name}</h2>
-                                <p style={{ color: "var(--text)", width: "100%", maxWidth: "250px" }}>{otherUser.isTyping
+                                <p style={{
+                                    color: otherUser.isTyping
+                                        ? "#00A3FF"
+                                        : "var(--text)", width: "100%", maxWidth: "250px"
+                                }}>{otherUser.isTyping
                                     ? "Пише..."
                                     : lastMessage?.text || "Немає повідомленнь"}</p>
                                 <p style={{ position: "absolute", inset: "0 8px auto auto" }}>{lastMessage

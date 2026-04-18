@@ -94,6 +94,7 @@ address {
   --title: #515151;
   --text: #515151;
   --сontact-bg-color: rgba(0, 163, 255, 0.15);
+  --сontact-name-color: #515151;
   --msg-bcg: #FFF;
 }
 
@@ -102,6 +103,7 @@ address {
   --title: #DADADA;
   --text: #E0E0E0;
   --сontact-bg-color: rgba(0, 163, 255, 0.31);
+  --сontact-name-color: #F0F0F0;
   --msg-bcg: #292929;
 }
 
@@ -112,4 +114,9 @@ body {
 
 .card {
   background: var(--card);
+}
+
+.chat-window-box:focus-within .chat-window-btn {
+  opacity: 0;
+  visibility: hidden;
 }
