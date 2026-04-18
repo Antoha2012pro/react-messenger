@@ -8,7 +8,7 @@ const ChatWindow = ({
     onSendMessage,
 }) => {
     const [messageText, setMessageText] = useState("");
-    const { theme, toggleTheme } = useTheme();
+    const { theme } = useTheme();
 
     const handleSubmit = e => {
         e.preventDefault();
