@@ -92,12 +92,16 @@ address {
 :root {
   --bg: #FFF;
   --title: #515151;
+  --text: #515151;
+  --сontact-bg-color: rgba(0, 163, 255, 0.15);
   --msg-bcg: #FFF;
 }
 
 [data-theme="dark"] {
   --bg: #121212;
   --title: #DADADA;
+  --text: #E0E0E0;
+  --сontact-bg-color: rgba(0, 163, 255, 0.31);
   --msg-bcg: #292929;
 }
 

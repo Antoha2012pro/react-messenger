@@ -8,37 +8,65 @@ const ContactList = ({
 }) => {
     return (
         <div>
-                {chats.map(chat => {
-                    const otherUserId = chat.members.find(id => id !== currentUserId);
-                    const otherUser = users.find(user => user.id === otherUserId);
+            {chats.map(chat => {
+                const otherUserId = chat.members.find(id => id !== currentUserId);
+                const otherUser = users.find(user => user.id === otherUserId);
 
-                    const chatMessages = messages.filter(message => message.chatId === chat.id);
-                    const lastMessage = chatMessages[chatMessages.length - 1];
+                const chatMessages = messages.filter(message => message.chatId === chat.id);
+                const lastMessage = chatMessages[chatMessages.length - 1];
 
-                    return (
-                        <button
-                            key={chat.id}
-                            onClick={() => onSelectChat(chat.id)}
-                            style={{
-                                display: "block",
-                                marginBottom: "10px",
-                                fontWeight: activeChatId === chat.id ? "bold" : "normal",
-                                padding: 0,
-                                width: "100%"
-                            }}
-                        >
-                            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 16, padding: "12px 0 12px 24px", backgroundColor: activeChatId === chat.id ? "#006eff60" : "transparent", }}>
-                                <img src={otherUser.avatar} alt="Avatar" style={{ width: 64, height: 64, borderRadius: "50%", border: "1px solid #4E4E4E", backgroundColor: "#00000060" }} />
-                                <div className="chat-info">
-                                    <h2 style={{color: "var(--title)"}}>{otherUser.name}</h2>
-                                    <p>{otherUser.isTyping
-                                        ? "Пише..."
-                                        : lastMessage?.text || "Немає повідомленнь"}</p>
-                                </div>
+                return (
+                    <button
+                        key={chat.id}
+                        onClick={() => onSelectChat(chat.id)}
+                        style={{
+                            display: "block",
+                            marginBottom: "10px",
+                            fontWeight: activeChatId === chat.id ? "bold" : "normal",
+                            padding: 0,
+                            width: "100%"
+                        }}
+                    >
+                        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 16, padding: "12px 0 12px 24px", width: "100%", backgroundColor: activeChatId === chat.id ? "var(--сontact-bg-color)" : "transparent", }}>
+                            <div
+                                style={{
+                                    width: 64,
+                                    height: 64,
+                                    borderRadius: "50%",
+                                    overflow: "hidden",
+                                    border: "1px solid #4E4E4E",
+                                    backgroundColor: "#00000060",
+                                    flexShrink: 0,
+                                }}
+                            >
+                                <img
+                                    src={otherUser.avatar}
+                                    alt="Avatar"
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        objectPosition: "center",
+                                        display: "block",
+                                    }}
+                                />
                             </div>
-                        </button>
-                    );
-                })}
+                            <div className="chat-info" style={{ position: "relative", width: "100%", textAlign: "start" }}>
+                                <h2 style={{ color: "var(--title)", width: "100%", maxWidth: "200px" }}>{otherUser.name}</h2>
+                                <p style={{ color: "var(--text)", width: "100%", maxWidth: "250px" }}>{otherUser.isTyping
+                                    ? "Пише..."
+                                    : lastMessage?.text || "Немає повідомленнь"}</p>
+                                <p style={{ position: "absolute", inset: "0 8px auto auto" }}>{lastMessage
+                                    ? new Date(lastMessage?.createdAt).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })
+                                    : ""}</p>
+                            </div>
+                        </div>
+                    </button>
+                );
+            })}
         </div>
     );
 };

@@ -63,6 +63,7 @@ function App() {
       chatId: activeChatId,
       senderId: currentUserId,
       text: trimmedText,
+      createdAt: new Date().toISOString(),
     };
 
     setMessages(prev => [...prev, newMessage]);
