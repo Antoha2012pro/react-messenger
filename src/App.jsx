@@ -16,44 +16,40 @@ import {
   ResizeHandleStyled,
 } from "./styles/app.styled";
 
-const users = [
+const demoUsers = [
   {
     id: "u1",
     name: "Анна",
-    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsc3WLwt1VO_zCe9FTBOByMFq7iya4QO38gA&s",
+    avatar:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsc3WLwt1VO_zCe9FTBOByMFq7iya4QO38gA&s",
     isTyping: false,
     isOnline: false,
   },
   {
-    id: "u2",
-    name: "Я",
-    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsc3WLwt1VO_zCe9FTBOByMFq7iya4QO38gA&s",
-    isTyping: false,
-    isOnline: true,
-  },
-  {
     id: "u3",
     name: "Макс",
-    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfcbg4vgnOEYx67CzLzBbmfSYJ82mdXVA08g&s",
+    avatar:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfcbg4vgnOEYx67CzLzBbmfSYJ82mdXVA08g&s",
     isTyping: false,
     isOnline: true,
   },
   {
     id: "u4",
     name: "Mr_Donnotella",
-    avatar: "https://cdn.discordapp.com/attachments/1199628062124429332/1495399729767518208/a43039e40fb6d153bebb1e201ec373ab.png?ex=69e61b06&is=69e4c986&hm=8c030c042cbd75674b6d7643708c6377c91f316f568922ca461288788ca482bb&",
+    avatar:
+      "https://cdn.discordapp.com/attachments/1199628062124429332/1495399729767518208/a43039e40fb6d153bebb1e201ec373ab.png?ex=69e61b06&is=69e4c986&hm=8c030c042cbd75674b6d7643708c6377c91f316f568922ca461288788ca482bb&",
     isTyping: false,
     isOnline: false,
   },
 ];
 
-const chats = [
-  { id: "c1", members: ["u1", "u2"] },
-  { id: "c2", members: ["u2", "u3"] },
-  { id: "c3", members: ["u2", "u4"] },
+const createChats = currentUserId => [
+  { id: "c1", members: [currentUserId, "u1"] },
+  { id: "c2", members: [currentUserId, "u3"] },
+  { id: "c3", members: [currentUserId, "u4"] },
 ];
 
-const initialMessages = [
+const createInitialMessages = currentUserId => [
   {
     id: "m1",
     chatId: "c1",
@@ -64,7 +60,7 @@ const initialMessages = [
   {
     id: "m2",
     chatId: "c1",
-    senderId: "u2",
+    senderId: currentUserId,
     text: "Дароу!",
     createdAt: "2026-04-18T17:12:26.542Z",
   },
@@ -87,15 +83,41 @@ const initialMessages = [
 function App() {
   const [theme, setTheme] = useState("dark");
   const [activeChatId, setActiveChatId] = useState(null);
-  const [messages, setMessages] = useState(initialMessages);
-
+  const [messages, setMessages] = useState([]);
   const [sidebarWidth, setSidebarWidth] = useState(390);
   const [isResizing, setIsResizing] = useState(false);
-
   const [session, setSession] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-const currentUserId = session?.user?.id ?? null;
+  const currentUserId = session?.user?.id ?? null;
+
+  useEffect(() => {
+    const loadSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session ?? null);
+      setAuthLoading(false);
+    };
+
+    loadSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession ?? null);
+      setActiveChatId(null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUserId) {
+      setMessages([]);
+      return;
+    }
+
+    setMessages(createInitialMessages(currentUserId));
+  }, [currentUserId]);
 
   useEffect(() => {
     if (!isResizing) return;
@@ -105,8 +127,8 @@ const currentUserId = session?.user?.id ?? null;
 
       const minWidth = 280;
       const maxWidth = 600;
-
       const nextWidth = Math.max(minWidth, Math.min(maxWidth, event.clientX));
+
       setSidebarWidth(nextWidth);
     };
 
@@ -123,24 +145,6 @@ const currentUserId = session?.user?.id ?? null;
     };
   }, [isResizing]);
 
-  useEffect(() => {
-    const loadSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session ?? null);
-      setAuthLoading(false);
-    };
-
-    loadSession();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   const handleDeleteMessage = messageId => {
     setMessages(prev => prev.filter(message => message.id !== messageId));
   };
@@ -149,18 +153,9 @@ const currentUserId = session?.user?.id ?? null;
     setTheme(prev => (prev === "dark" ? "light" : "dark"));
   };
 
-  const activeChat = chats.find(chat => chat.id === activeChatId) || null;
-
-  const activeMessages = activeChatId
-    ? messages.filter(message => message.chatId === activeChatId)
-    : [];
-
-  const otherUserId = activeChat?.members.find(id => id !== currentUserId);
-  const activeUser = users.find(user => user.id === otherUserId) || null;
-
   const handleSendMessage = text => {
     const trimmedText = text.trim();
-    if (!trimmedText) return;
+    if (!trimmedText || !activeChatId || !currentUserId) return;
 
     const newMessage = {
       id: Date.now().toString(),
@@ -173,7 +168,9 @@ const currentUserId = session?.user?.id ?? null;
     setMessages(prev => [...prev, newMessage]);
   };
 
-  const handleSendAudioMessage = (audioUrl) => {
+  const handleSendAudioMessage = audioUrl => {
+    if (!activeChatId || !currentUserId) return;
+
     const newMessage = {
       id: Date.now().toString(),
       chatId: activeChatId,
@@ -187,6 +184,8 @@ const currentUserId = session?.user?.id ?? null;
   };
 
   const handleSendVideoMessage = videoUrl => {
+    if (!activeChatId || !currentUserId) return;
+
     const newMessage = {
       id: Date.now().toString(),
       chatId: activeChatId,
@@ -206,6 +205,31 @@ const currentUserId = session?.user?.id ?? null;
   if (!session) {
     return <AuthScreen />;
   }
+
+  const currentUser = {
+    id: currentUserId,
+    name:
+      session.user.user_metadata?.username ||
+      session.user.email?.split("@")[0] ||
+      "Вы",
+    avatar:
+      session.user.user_metadata?.avatar_url ||
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsc3WLwt1VO_zCe9FTBOByMFq7iya4QO38gA&s",
+    isTyping: false,
+    isOnline: true,
+  };
+
+  const users = [currentUser, ...demoUsers];
+  const chats = createChats(currentUserId);
+
+  const activeChat = chats.find(chat => chat.id === activeChatId) || null;
+
+  const activeMessages = activeChatId
+    ? messages.filter(message => message.chatId === activeChatId)
+    : [];
+
+  const otherUserId = activeChat?.members.find(id => id !== currentUserId);
+  const activeUser = users.find(user => user.id === otherUserId) || null;
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
