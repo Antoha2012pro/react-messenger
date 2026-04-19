@@ -10,7 +10,6 @@ export const ContactButtonStyled = styled.button`
   display: block;
   width: 100%;
   padding: 0;
-  margin-bottom: 10px;
 `;
 
 export const ContactButtonInnerStyled = styled.div`
@@ -18,7 +17,7 @@ export const ContactButtonInnerStyled = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 16px;
-  padding: 12px 0 12px 24px;
+  padding: 12px 0 12px 10px;
   width: 100%;
   background: ${({ $active, theme }) =>
     $active ? theme.contactBgColor : "transparent"};
@@ -36,6 +35,7 @@ export const ContactNameStyled = styled.h2`
   color: ${({ theme }) => theme.title};
   width: 100%;
   max-width: 200px;
+  font-size: 18px;
 `;
 
 export const ContactPreviewStyled = styled.p`
@@ -45,14 +45,19 @@ export const ContactPreviewStyled = styled.p`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  font-size: 14px;
 `;
 
 export const ContactTimeStyled = styled.p`
   position: absolute;
-  inset: 0 8px auto auto;
+  inset: 0 10px auto auto;
+
+  @media (min-width: 425px) {
+    inset: 0 8px auto auto;
+  }
 `;
 
-export const ChatWindowWrapStyled = styled.main`
+export const ChatWindowWrapStyled = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -101,9 +106,14 @@ export const MessagesWrapStyled = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
-  padding: 16px 66px 26px 46px;
+  padding: 16px 8px 26px 8px;
   display: flex;
   flex-direction: column;
+
+  
+  @media (min-width: 768px) {
+    padding: 16px 66px 26px 46px;
+  }
 `;
 
 export const DayDividerWrapStyled = styled.div`
@@ -168,7 +178,7 @@ export const MessageBubbleRowStyled = styled.div`
 
 export const MessageBubbleStyled = styled.p`
   background: ${({ $isOwn, theme }) => ($isOwn ? "#00A3FF" : theme.msgBg)};
-  padding: 16px 24px;
+  padding: 10px 16px;
   border-radius: ${({ $isOwn }) =>
     $isOwn ? "14px 0 14px 14px" : "0 14px 14px 14px"};
   color: ${({ $isOwn, $lightTheme }) =>
@@ -178,6 +188,10 @@ export const MessageBubbleStyled = styled.p`
   overflow-wrap: anywhere;
   white-space: pre-wrap;
   text-align: start;
+
+  @media (min-width: 768px) {
+    padding: 16px 24px;
+  }
 `;
 
 export const InputMessageStyled = styled.input`
@@ -253,15 +267,23 @@ export const MessageFormRightStyled = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
 `;
 
 export const SendButtonStyled = styled.button`
   color: white;
-  padding: 10px 18px 10px 18px;
+  padding: 10px 10px 10px 10px;
   border-radius: 12px;
-  background-color: #00a3ff;
+  background-color: #00a2ff44;
   display: flex;
   flex-direction: row;
   gap: 8px;
+  width: 100%;
+  min-width: 40px;
+
+  svg {
+    fill: #00A3FF;
+    width: 20px;
+    height: 20px;
+  }
 `;

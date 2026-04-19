@@ -79,15 +79,14 @@ export const AppLayout = styled.div`
 `;
 
 export const AppSidebar = styled.aside`
-  width: 100%;
-  max-width: 390px;
+  width: ${({ $width }) => `${$width}px`};
+  flex-shrink: 0;
   border-right: 1px solid ${({ theme }) => theme.border};
   background: ${({ theme }) => theme.bg};
 
   @media (max-width: 768px) {
     position: absolute;
     inset: 0;
-    max-width: none;
     width: 100%;
     border-right: none;
     transition: transform 0.25s ease;
@@ -97,7 +96,7 @@ export const AppSidebar = styled.aside`
   }
 `;
 
-export const AppChat = styled.div`
+export const AppChat = styled.main`
   flex: 1;
   min-width: 0;
   background: ${({ theme }) => theme.bg};
@@ -119,4 +118,26 @@ export const ChatEmpty = styled.div`
   align-items: center;
   justify-content: center;
   color: ${({ theme }) => theme.text};
+`;
+
+export const ResizeHandleStyled = styled.div`
+  width: 6px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  position: relative;
+  background: transparent;
+
+  &:hover {
+    background: rgba(0, 163, 255, 0.15);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;

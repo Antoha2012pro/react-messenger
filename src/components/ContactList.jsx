@@ -33,7 +33,7 @@ const ContactList = ({
             onClick={() => onSelectChat(chat.id)}
           >
             <ContactButtonInnerStyled $active={activeChatId === chat.id}>
-              <ProfileImg url={otherUser.avatar} />
+              <ProfileImg url={otherUser.avatar} size="telefon" />
 
               <ContactTextWrapStyled>
                 <ChatInfoStyled>

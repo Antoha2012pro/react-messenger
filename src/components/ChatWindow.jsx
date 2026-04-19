@@ -117,7 +117,7 @@ const ChatWindow = ({
     return (
         <ChatWindowWrapStyled>
             <ChatHeaderStyled>
-                <ChatBackButtonStyled type="button" onClick={onBack}>
+                <ChatBackButtonStyled type="button" onClick={onBack} aria-label="Назад">
                     ←
                 </ChatBackButtonStyled>
 
@@ -194,6 +194,7 @@ const ChatWindow = ({
 
                                             <ButtonContextMenuStyled
                                                 onClick={event => openMenu(event, message.id)}
+                                                aria-label="Открыть меню сообщения"
                                             >
                                                 ⋮
                                             </ButtonContextMenuStyled>
@@ -212,11 +213,12 @@ const ChatWindow = ({
                                 onDeleteMessage(menu.messageId);
                                 closeMenu();
                             }}
+                            aria-label="Удалить"
                         >
                             Удалить
                         </ContextMenuDeleteButtonStyled>
 
-                        <ContextMenuCloseButtonStyled onClick={closeMenu}>
+                        <ContextMenuCloseButtonStyled onClick={closeMenu} aria-label="Закрыть">
                             Закрыть
                         </ContextMenuCloseButtonStyled>
                     </ContextMenuStyled>
@@ -225,7 +227,7 @@ const ChatWindow = ({
 
             <MessageFormStyled onSubmit={handleSubmit}>
                 <MessageFormLeftStyled>
-                    <button>😊</button>
+                    <button aria-label="Емодзи">😊</button>
 
                     <InputMessageStyled
                         className="chat-window-input"
@@ -237,11 +239,13 @@ const ChatWindow = ({
                 </MessageFormLeftStyled>
 
                 <MessageFormRightStyled>
-                    <button>🎙️</button>
-                    <button>📂</button>
+                    <button aria-label="Голосове сообщение">🎙️</button>
+                    <button aria-label="Прикрепить файл">📂</button>
 
                     <SendButtonStyled type="submit">
-                        Send
+                        <svg>
+                            <use href="/img/symbol-defs.svg#icon-planet"></use>
+                        </svg>
                     </SendButtonStyled>
                 </MessageFormRightStyled>
             </MessageFormStyled>

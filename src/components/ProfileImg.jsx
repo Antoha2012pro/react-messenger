@@ -2,8 +2,8 @@ const ProfileImg = ({url, size}) => {
     return (
         <div
             style={{
-                width: size === "small" ? 42 : 64,
-                height: size === "small" ? 42 : 64,
+                width: size === "small" ? 42 : size === "telefon" ? 52 : 64,
+                height: size === "small" ? 42 : size === "telefon" ? 52 : 64,
                 borderRadius: "50%",
                 overflow: "hidden",
                 border: "1px solid #4E4E4E",

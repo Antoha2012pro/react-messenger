@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ContactList from "./components/ContactList";
 import ChatWindow from "./components/ChatWindow";
 import AsideLogo from "./components/AsideLogo";
@@ -11,6 +11,7 @@ import {
   AppSidebar,
   AppChat,
   ChatEmpty,
+  ResizeHandleStyled,
 } from "./styles/app.styled";
 
 const currentUserId = "u2";
@@ -73,6 +74,35 @@ function App() {
   const [activeChatId, setActiveChatId] = useState(null);
   const [messages, setMessages] = useState(initialMessages);
 
+  const [sidebarWidth, setSidebarWidth] = useState(390);
+  const [isResizing, setIsResizing] = useState(false);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = event => {
+      if (window.innerWidth <= 768) return;
+
+      const minWidth = 280;
+      const maxWidth = 600;
+
+      const nextWidth = Math.max(minWidth, Math.min(maxWidth, event.clientX));
+      setSidebarWidth(nextWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing]);
+
   const handleDeleteMessage = messageId => {
     setMessages(prev => prev.filter(message => message.id !== messageId));
   };
@@ -111,7 +141,7 @@ function App() {
         <GlobalStyles />
 
         <AppLayout>
-          <AppSidebar $chatOpen={!!activeChatId}>
+          <AppSidebar $chatOpen={!!activeChatId} $width={sidebarWidth}>
             <AsideLogo />
             <ContactList
               chats={chats}
@@ -122,6 +152,13 @@ function App() {
               onSelectChat={setActiveChatId}
             />
           </AppSidebar>
+
+          <ResizeHandleStyled
+            onMouseDown={event => {
+              event.preventDefault();
+              setIsResizing(true);
+            }}
+          />
 
           <AppChat $chatOpen={!!activeChatId}>
             {activeUser ? (

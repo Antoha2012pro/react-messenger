@@ -5,7 +5,9 @@ const AsideLogo = () => {
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 26, padding: "20px 24px 24px 24px" }}>
             <a href="https://orbitium.net" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 14 }}>
-                <img src="https://cdn.discordapp.com/attachments/1418674347526193242/1425171108843356231/orbitium3.jpg?ex=69e46646&is=69e314c6&hm=c81ddcaa919e5c9c01d7dbe214052d173802fa34582ba9e7cd2e4e5f078764b6&" alt="ORBitium Logo" style={{ width: 64 }} /><span style={{
+                <svg style={{ width: 64, height: 64, fill: "#00A3FF" }}>
+                    <use href="/img/symbol-defs.svg#icon-planet"></use>
+                </svg><span style={{
                     color: "#00A3FF",
                     fontFamily: "Inter",
                     fontSize: "22px",
@@ -61,6 +63,7 @@ const AsideLogo = () => {
                         backgroundColor: "#00A3FF",
                         position: "relative",
                     }}
+                    aria-label="Создать новый чат"
                 ><span
                     style={{
                         position: "relative",
