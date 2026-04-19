@@ -1,4 +1,5 @@
 import ProfileImg from "./ProfileImg";
+import { formatMessageTime } from "../utils/formatMessageTime";
 
 const ContactList = ({
     chats,
@@ -31,21 +32,30 @@ const ContactList = ({
                     >
                         <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 16, padding: "12px 0 12px 24px", width: "100%", backgroundColor: activeChatId === chat.id ? "var(--сontact-bg-color)" : "transparent", }}>
                             <ProfileImg url={otherUser.avatar} />
-                            <div className="chat-info" style={{ position: "relative", width: "100%", textAlign: "start" }}>
+                            <div
+                                className="chat-info"
+                                style={{
+                                    position: "relative",
+                                    width: "100%",
+                                    textAlign: "start",
+                                    paddingRight: "60px",
+                                    minWidth: 0,
+                                }}
+                            >
                                 <h2 style={{ color: "var(--title)", width: "100%", maxWidth: "200px" }}>{otherUser.name}</h2>
-                                <p style={{
-                                    color: otherUser.isTyping
-                                        ? "#00A3FF"
-                                        : "var(--text)", width: "100%", maxWidth: "250px"
-                                }}>{otherUser.isTyping
+                                <p
+                                    style={{
+                                        color: otherUser.isTyping ? "#00A3FF" : "var(--text)",
+                                        width: "100%",
+                                        maxWidth: "250px",
+                                        overflow: "hidden",
+                                        whiteSpace: "nowrap",
+                                        textOverflow: "ellipsis",
+                                    }}
+                                >{otherUser.isTyping
                                     ? "Пише..."
                                     : lastMessage?.text || "Немає повідомленнь"}</p>
-                                <p style={{ position: "absolute", inset: "0 8px auto auto" }}>{lastMessage
-                                    ? new Date(lastMessage?.createdAt).toLocaleTimeString([], {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    })
-                                    : ""}</p>
+                                <p style={{ position: "absolute", inset: "0 8px auto auto" }}>{lastMessage ? formatMessageTime(lastMessage.createdAt) : ""}</p>
                             </div>
                         </div>
                     </button>

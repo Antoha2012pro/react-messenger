@@ -1,24 +1,85 @@
 import { useState } from "react";
 import { useTheme } from "../ThemeContext";
 import ProfileImg from "./ProfileImg";
-import { InputMessageStyled } from "../styles/ChatWindow.styled";
+import { ButtonContextMenuStyled, InputMessageStyled } from "../styles/ChatWindow.styled";
+import { formatMessageTime } from "../utils/formatMessageTime";
 
 const ChatWindow = ({
     activeUser,
     activeMessages,
     currentUserId,
     onSendMessage,
+    onDeleteMessage,
 }) => {
     const [messageText, setMessageText] = useState("");
+    const [menu, setMenu] = useState({
+        isOpen: false,
+        x: 0,
+        y: 0,
+        messageId: null,
+    });
     const { theme } = useTheme();
 
-    const handleSubmit = e => {
-        e.preventDefault();
+    const openMenu = (event, messageId) => {
+        event.preventDefault();
+
+        const isRightClick = event.type === "contextmenu";
+
+        setMenu({
+            isOpen: true,
+            x: isRightClick ? event.clientX : event.currentTarget.getBoundingClientRect().right - 160,
+            y: isRightClick ? event.clientY : event.currentTarget.getBoundingClientRect().bottom + 6,
+            messageId,
+        });
+    };
+
+    const closeMenu = () => {
+        setMenu({
+            isOpen: false,
+            x: 0,
+            y: 0,
+            messageId: null,
+        });
+    };
+
+    const handleSubmit = event => {
+        event.preventDefault();
 
         if (!messageText.trim()) return;
 
         onSendMessage(messageText);
         setMessageText("");
+    };
+
+    const isGroupedMessage = (messages, index) => {
+        if (index === 0) return false;
+
+        const prev = messages[index - 1];
+        const current = messages[index];
+
+        return (
+            prev.senderId === current.senderId &&
+            new Date(current.createdAt) - new Date(prev.createdAt) <= 5 * 60 * 1000
+        );
+    };
+
+    const formatDayLabel = dateString => {
+        const date = new Date(dateString);
+
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+
+        return `${day}.${month}.${year}`;
+    };
+
+    const isNewDay = (messages, index) => {
+        if (index === 0) return true;
+
+        const prev = new Date(messages[index - 1].createdAt);
+        const current = new Date(messages[index].createdAt);
+
+        return prev.toDateString() !== current.toDateString();
     };
 
     return (
@@ -50,58 +111,153 @@ const ChatWindow = ({
                 padding: "16px 66px 26px 46px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 20,
             }}>
-                {activeMessages.map(message => (
-                    <div key={message.id} style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: 14,
-                        alignItems: "start",
-                        margin: message.senderId !== currentUserId
-                                        ? "0 auto 0 0"
-                                        : "0 0 0 auto",
-                    }}>
-                        {message.senderId !== currentUserId && (<ProfileImg url={activeUser.avatar} size="small" />)}
-                        <div style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 12,
-                            alignItems: "start",
-                            width: "100%",
-                            textAlign: message.senderId === currentUserId ? "right" : "left",
-                        }}>
-                            <div style={{ display: "flex", flexDirection: "row", gap: 16 }}>
-                                {message.senderId !== currentUserId && (<h3 style={{ color: "var(--title)" }}>{activeUser.name}</h3>)}
-                                <p>{message
-                                    ? new Date(message?.createdAt).toLocaleTimeString([], {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        second: "2-digit",
-                                    })
-                                    : ""}</p>
-                            </div>
-                            <p
+                {activeMessages.map((message, index) => {
+                    const isGrouped = isGroupedMessage(activeMessages, index);
+                    const isOwn = message.senderId === currentUserId;
+                    const showDayLabel = isNewDay(activeMessages, index);
+
+                    return (
+                        <div onClick={() => {
+                            if (menu.isOpen) {
+
+                                closeMenu();
+                            }
+                        }} key={message.id}>
+                            {showDayLabel && (
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        margin: "12px 0 20px",
+                                    }}
+                                >
+                                    <span
+                                        style={{
+                                            padding: "6px 12px",
+                                            borderRadius: 999,
+                                            backgroundColor: "var(--date-chat-color)",
+                                            color: "var(--text)",
+                                            fontSize: 14,
+                                        }}
+                                    >
+                                        {formatDayLabel(message.createdAt)}
+                                    </span>
+                                </div>
+                            )}
+                            <div
                                 style={{
-                                    backgroundColor: message.senderId !== currentUserId
-                                        ? "var(--msg-bcg)"
-                                        : "#00A3FF",
-                                    padding: "16px 24px 16px 24px",
-                                    borderRadius: message.senderId !== currentUserId
-                                        ? "0 14px 14px 14px"
-                                        : "14px 0 14px 14px",
-                                    marginBottom: "12px",
-                                    color: theme === "light" && message.senderId !== currentUserId
-                                        ? "black"
-                                        : "white"
+                                    display: "flex",
+                                    justifyContent: isOwn ? "flex-end" : "flex-start",
+                                    width: "100%",
+                                    marginTop: index === 0 ? 0 : isGrouped ? 4 : 10,
                                 }}
                             >
-                                {message.text}
-                            </p>
-                        </div>
-                    </div>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        gap: isOwn ? 0 : 14,
+                                        alignItems: "flex-start",
+                                        width: "fit-content",
+                                        maxWidth: "70%",
+                                    }}
+                                >
+                                    {!isOwn && (
+                                        isGrouped
+                                            ? <div style={{ width: 40, flexShrink: 0 }} />
+                                            : <ProfileImg url={activeUser.avatar} size="small" />
+                                    )}
 
-                ))}
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            gap: 12,
+                                            alignItems: isOwn ? "flex-end" : "flex-start",
+                                            textAlign: isOwn ? "right" : "left",
+                                        }}
+                                    >
+                                        {!isGrouped && (
+                                            <div style={{ display: "flex", flexDirection: isOwn ? "row-reverse" : "row", gap: 16, alignItems: "center" }}>
+                                                {!isOwn ? (
+                                                    <h3 style={{ color: "var(--title)" }}>{activeUser.name}</h3>
+                                                ) : <h3 style={{ color: "var(--title)" }}>Ви</h3>}
+                                                <p>
+                                                    {formatMessageTime(message.createdAt)}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        <div style={{display: "flex", gap: 6, flexDirection: isOwn ? "row-reverse" : "row",}}>
+
+                                            <p
+                                                onContextMenu={(e) => openMenu(e, message.id)}
+                                                style={{
+                                                    backgroundColor: !isOwn ? "var(--msg-bcg)" : "#00A3FF",
+                                                    padding: "16px 24px",
+                                                    borderRadius: !isOwn ? "0 14px 14px 14px" : "14px 0 14px 14px",
+                                                    color: theme === "light" && !isOwn ? "black" : "white",
+                                                    maxWidth: "100%",
+                                                    wordBreak: "break-word",
+                                                    overflowWrap: "anywhere",
+                                                    whiteSpace: "pre-wrap",
+                                                    textAlign: "start",
+                                                }}
+                                            >
+                                                {message.text}
+                                            </p>
+                                            <ButtonContextMenuStyled
+                                                onClick={(e) => openMenu(e, message.id)}
+                                            >
+                                                ⋮
+                                            </ButtonContextMenuStyled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+
+                {menu.isOpen && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: menu.y,
+                            left: menu.x,
+                            backgroundColor: "#111",
+                            color: "#fff",
+                            borderRadius: 12,
+                            padding: 8,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 8,
+                            zIndex: 1000,
+                            minWidth: 160,
+                            boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+                        }}
+                    >
+                        <button
+                            onClick={() => {
+                                onDeleteMessage(menu.messageId);
+                                closeMenu();
+                            }}
+                            style={{ color: "red", textAlign: "left" }}
+                        >
+                            Удалить
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                closeMenu();
+                            }}
+                            style={{ textAlign: "left" }}
+                        >
+                            Закрыть
+                        </button>
+                    </div>
+                )}
             </div>
 
             <form onSubmit={handleSubmit} style={{
@@ -121,7 +277,7 @@ const ChatWindow = ({
                         className="chat-window-input"
                         type="text"
                         value={messageText}
-                        onChange={e => setMessageText(e.target.value)}
+                        onChange={event => setMessageText(event.target.value)}
                         placeholder="Введите сообщение"
                     />
                 </div>
@@ -141,7 +297,7 @@ const ChatWindow = ({
                     }}>Send</button>
                 </div>
             </form>
-        </main>
+        </main >
     );
 };
 

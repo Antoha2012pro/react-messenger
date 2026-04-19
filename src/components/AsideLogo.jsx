@@ -13,36 +13,59 @@ const AsideLogo = () => {
                     fontWeight: "600",
                     lineHeight: "normal",
                 }}>ORB</span></a>
-            <div style={{ display: "flex", flexDirection: "row", gap: 12 }}>
-                <div style={{ width: "100%", position: "relative" }}>
-                    <img src="https://www.freeiconspng.com/thumbs/search-icon-png/search-icon-png-9.png" alt="Icon" style={{ width: 22, height: 22, position: "absolute", inset: "50% 0 0 14px", transform: "translateY(-50%)" }} />
-                    <input type="text" placeholder="Search messages, people" style={{
-                        padding: "13px 45px 14px 45px",
-                        borderRadius: "12px",
-                        border: "1px solid rgba(204, 207, 208, 0.30)",
-                        backgroundColor: "rgba(255, 255, 255, 0)",
-                        color: "rgba(171, 175, 177, 0.6)",
-                        fontFamily: "Inter",
-                        fontSize: "16px",
-                        fontStyle: "normal",
-                        fontWeight: "400",
-                        lineHeight: "normal",
-                    }} />
+            <div style={{ display: "flex", alignItems: "stretch", gap: 12 }}>
+                <div style={{ flex: 1, position: "relative" }}>
+
+                    <img
+                        src="https://www.freeiconspng.com/thumbs/search-icon-png/search-icon-png-9.png"
+                        alt="Icon"
+                        style={{
+                            width: 18,
+                            height: 18,
+                            position: "absolute",
+                            left: 14,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            opacity: 0.7,
+                        }}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Search messages, people"
+                        style={{
+                            width: "100%",
+                            height: 46,
+                            boxSizing: "border-box",
+                            padding: "0 14px 0 42px",
+                            borderRadius: 12,
+                            border: "1px solid rgba(204, 207, 208, 0.30)",
+                            backgroundColor: "transparent",
+                            color: "rgba(171, 175, 177, 0.9)",
+                            fontFamily: "Inter",
+                            fontSize: 16,
+                            fontWeight: 400,
+                            outline: "none",
+                        }}
+                    />
                 </div>
-                <button style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: 0,
-                    borderRadius: 12,
-                    backgroundColor: "#00A3FF",
-                    position: "relative",
-                }}><span
+                <button
+                    style={{
+                        width: 46,
+                        height: 46,
+                        flexShrink: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 0,
+                        borderRadius: 12,
+                        backgroundColor: "#00A3FF",
+                        position: "relative",
+                    }}
+                ><span
                     style={{
                         position: "relative",
-                        width: 24,
-                        height: 24,
+                        width: 20,
+                        height: 20,
                         display: "block",
                     }}
                 >
@@ -51,7 +74,7 @@ const AsideLogo = () => {
                                 position: "absolute",
                                 top: "50%",
                                 left: 0,
-                                width: 24,
+                                width: 20,
                                 height: 3,
                                 backgroundColor: "#fff",
                                 borderRadius: 999,
@@ -64,7 +87,7 @@ const AsideLogo = () => {
                                 top: 0,
                                 left: "50%",
                                 width: 3,
-                                height: 24,
+                                height: 20,
                                 backgroundColor: "#fff",
                                 borderRadius: 999,
                                 transform: "translateX(-50%)",
@@ -72,7 +95,7 @@ const AsideLogo = () => {
                         />
                     </span></button>
             </div>
-            <button onClick={toggleTheme} style={{color: "var(--title)"}}>Переключити тему</button>
+            <button onClick={toggleTheme} style={{ color: "var(--title)" }}>Переключити тему</button>
         </div>
     )
 }

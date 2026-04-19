@@ -14,3 +14,17 @@ export const InputMessageStyled = styled.input`
         outline: none;
     }
 `;
+
+export const ButtonContextMenuStyled = styled.button`
+    display: none;
+    font-size: 18px;
+    color: var(--text);
+    padding: 4px 8px;
+    border-radius: 8px;
+
+    @media (hover: none) and (pointer: coarse) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+`;

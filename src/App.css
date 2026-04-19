@@ -93,6 +93,7 @@ address {
   --bg: #FFF;
   --title: #515151;
   --text: #515151;
+  --date-chat-color: rgba(49, 49, 49, 0.12);
   --сontact-bg-color: rgba(0, 163, 255, 0.15);
   --сontact-name-color: #515151;
   --msg-bcg: #FFF;
@@ -102,6 +103,7 @@ address {
   --bg: #121212;
   --title: #DADADA;
   --text: #E0E0E0;
+  --date-chat-color: rgba(255,255,255,0.12);
   --сontact-bg-color: rgba(0, 163, 255, 0.31);
   --сontact-name-color: #F0F0F0;
   --msg-bcg: #292929;

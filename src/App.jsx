@@ -29,18 +29,20 @@ const chats = [
 
 const initialMessages = [
   { id: "m1", chatId: "c1", senderId: "u1", text: "Привет", createdAt: "2026-04-18T17:11:26.542Z", },
-  { id: "m2", chatId: "c1", senderId: "u2", text: "Привет!", createdAt: "2026-04-18T17:12:26.542Z", },
-  { id: "m3", chatId: "c2", senderId: "u3", text: "Ты тут?", createdAt: "2026-04-18T17:14:26.542Z", },
+  { id: "m2", chatId: "c1", senderId: "u2", text: "Дароу!", createdAt: "2026-04-18T17:12:26.542Z", },
+  { id: "m3", chatId: "c2", senderId: "u3", text: "Ты тут?", createdAt: "2024-04-16T17:14:26.542Z", },
 ];
 
 function App() {
   const [theme, setTheme] = useState("dark");
-  const [activeChatId, setActiveChatId] = useState("c2");
+  const [activeChatId, setActiveChatId] = useState("c1");
   const [messages, setMessages] = useState(initialMessages);
   // console.log(messages);
   // console.log(activeChatId);
-  
-  
+
+  const handleDeleteMessage = messageId => {
+    setMessages(prev => prev.filter(message => message.id !== messageId));
+  };
 
   const toggleTheme = () => {
     setTheme(prev => (prev === "dark" ? "light" : "dark"));
@@ -73,27 +75,28 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-    <div data-theme={theme} style={{ display: "flex", flexDirection: "row", backgroundColor: "var(--bg)", }}>
-      <aside style={{ width: "100%", maxWidth: "390px", borderRight: "1px solid #303030" }}>
-        <AsideLogo />
-        <ContactList
-          chats={chats}
-          users={users}
-          messages={messages}
-          currentUserId={currentUserId}
-          activeChatId={activeChatId}
-          onSelectChat={setActiveChatId}
-        />
-      </aside>
+      <div data-theme={theme} style={{ display: "flex", flexDirection: "row", backgroundColor: "var(--bg)", }}>
+        <aside style={{ width: "100%", maxWidth: "390px", borderRight: "1px solid #303030" }}>
+          <AsideLogo />
+          <ContactList
+            chats={chats}
+            users={users}
+            messages={messages}
+            currentUserId={currentUserId}
+            activeChatId={activeChatId}
+            onSelectChat={setActiveChatId}
+          />
+        </aside>
 
-      <ChatWindow
-        key={activeChatId}
-        activeUser={activeUser}
-        activeMessages={activeMessages}
-        currentUserId={currentUserId}
-        onSendMessage={handleSendMessage}
-      />
-    </div>
+        <ChatWindow
+          key={activeChatId}
+          activeUser={activeUser}
+          activeMessages={activeMessages}
+          currentUserId={currentUserId}
+          onSendMessage={handleSendMessage}
+          onDeleteMessage={handleDeleteMessage}
+        />
+      </div>
     </ThemeContext.Provider>
   );
 }
