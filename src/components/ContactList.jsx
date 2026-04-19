@@ -1,68 +1,61 @@
 import ProfileImg from "./ProfileImg";
 import { formatMessageTime } from "../utils/formatMessageTime";
+import {
+  ChatInfoStyled,
+  ContactButtonStyled,
+  ContactButtonInnerStyled,
+  ContactTextWrapStyled,
+  ContactNameStyled,
+  ContactPreviewStyled,
+  ContactTimeStyled,
+} from "../styles/messenger.styled";
 
 const ContactList = ({
-    chats,
-    users,
-    messages,
-    currentUserId,
-    activeChatId,
-    onSelectChat,
+  chats,
+  users,
+  messages,
+  currentUserId,
+  activeChatId,
+  onSelectChat,
 }) => {
-    return (
-        <div>
-            {chats.map(chat => {
-                const otherUserId = chat.members.find(id => id !== currentUserId);
-                const otherUser = users.find(user => user.id === otherUserId);
+  return (
+    <div>
+      {chats.map(chat => {
+        const otherUserId = chat.members.find(id => id !== currentUserId);
+        const otherUser = users.find(user => user.id === otherUserId);
 
-                const chatMessages = messages.filter(message => message.chatId === chat.id);
-                const lastMessage = chatMessages[chatMessages.length - 1];
+        const chatMessages = messages.filter(message => message.chatId === chat.id);
+        const lastMessage = chatMessages[chatMessages.length - 1];
 
-                return (
-                    <button
-                        key={chat.id}
-                        onClick={() => onSelectChat(chat.id)}
-                        style={{
-                            display: "block",
-                            marginBottom: "10px",
-                            fontWeight: activeChatId === chat.id ? "bold" : "normal",
-                            padding: 0,
-                            width: "100%"
-                        }}
-                    >
-                        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 16, padding: "12px 0 12px 24px", width: "100%", backgroundColor: activeChatId === chat.id ? "var(--сontact-bg-color)" : "transparent", }}>
-                            <ProfileImg url={otherUser.avatar} />
-                            <div
-                                className="chat-info"
-                                style={{
-                                    position: "relative",
-                                    width: "100%",
-                                    textAlign: "start",
-                                    paddingRight: "60px",
-                                    minWidth: 0,
-                                }}
-                            >
-                                <h2 style={{ color: "var(--title)", width: "100%", maxWidth: "200px" }}>{otherUser.name}</h2>
-                                <p
-                                    style={{
-                                        color: otherUser.isTyping ? "#00A3FF" : "var(--text)",
-                                        width: "100%",
-                                        maxWidth: "250px",
-                                        overflow: "hidden",
-                                        whiteSpace: "nowrap",
-                                        textOverflow: "ellipsis",
-                                    }}
-                                >{otherUser.isTyping
-                                    ? "Пише..."
-                                    : lastMessage?.text || "Немає повідомленнь"}</p>
-                                <p style={{ position: "absolute", inset: "0 8px auto auto" }}>{lastMessage ? formatMessageTime(lastMessage.createdAt) : ""}</p>
-                            </div>
-                        </div>
-                    </button>
-                );
-            })}
-        </div>
-    );
+        return (
+          <ContactButtonStyled
+            key={chat.id}
+            onClick={() => onSelectChat(chat.id)}
+          >
+            <ContactButtonInnerStyled $active={activeChatId === chat.id}>
+              <ProfileImg url={otherUser.avatar} />
+
+              <ContactTextWrapStyled>
+                <ChatInfoStyled>
+                  <ContactNameStyled>{otherUser.name}</ContactNameStyled>
+
+                  <ContactPreviewStyled $typing={otherUser.isTyping}>
+                    {otherUser.isTyping
+                      ? "Пише..."
+                      : lastMessage?.text || "Немає повідомленнь"}
+                  </ContactPreviewStyled>
+                </ChatInfoStyled>
+
+                <ContactTimeStyled>
+                  {lastMessage ? formatMessageTime(lastMessage.createdAt) : ""}
+                </ContactTimeStyled>
+              </ContactTextWrapStyled>
+            </ContactButtonInnerStyled>
+          </ContactButtonStyled>
+        );
+      })}
+    </div>
+  );
 };
 
 export default ContactList;

@@ -1,24 +1,41 @@
 import { useState } from "react";
-import "./App.css";
 import ContactList from "./components/ContactList";
 import ChatWindow from "./components/ChatWindow";
 import AsideLogo from "./components/AsideLogo";
 import { ThemeContext } from "./ThemeContext";
+import { ThemeProvider } from "styled-components";
+import { lightTheme, darkTheme } from "./styles/theme";
+import {
+  GlobalStyles,
+  AppLayout,
+  AppSidebar,
+  AppChat,
+  ChatEmpty,
+} from "./styles/app.styled";
 
 const currentUserId = "u2";
 
 const users = [
   {
-    id: "u1", name: "Анна", avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsc3WLwt1VO_zCe9FTBOByMFq7iya4QO38gA&s",
-    isTyping: false, isOnline: false
+    id: "u1",
+    name: "Анна",
+    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsc3WLwt1VO_zCe9FTBOByMFq7iya4QO38gA&s",
+    isTyping: false,
+    isOnline: false,
   },
   {
-    id: "u2", name: "Я", avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsc3WLwt1VO_zCe9FTBOByMFq7iya4QO38gA&s",
-    isTyping: false, isOnline: true
+    id: "u2",
+    name: "Я",
+    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsc3WLwt1VO_zCe9FTBOByMFq7iya4QO38gA&s",
+    isTyping: false,
+    isOnline: true,
   },
   {
-    id: "u3", name: "Макс", avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfcbg4vgnOEYx67CzLzBbmfSYJ82mdXVA08g&s",
-    isTyping: true, isOnline: true
+    id: "u3",
+    name: "Макс",
+    avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfcbg4vgnOEYx67CzLzBbmfSYJ82mdXVA08g&s",
+    isTyping: true,
+    isOnline: true,
   },
 ];
 
@@ -28,17 +45,33 @@ const chats = [
 ];
 
 const initialMessages = [
-  { id: "m1", chatId: "c1", senderId: "u1", text: "Привет", createdAt: "2026-04-18T17:11:26.542Z", },
-  { id: "m2", chatId: "c1", senderId: "u2", text: "Дароу!", createdAt: "2026-04-18T17:12:26.542Z", },
-  { id: "m3", chatId: "c2", senderId: "u3", text: "Ты тут?", createdAt: "2024-04-16T17:14:26.542Z", },
+  {
+    id: "m1",
+    chatId: "c1",
+    senderId: "u1",
+    text: "Привет",
+    createdAt: "2026-04-18T17:11:26.542Z",
+  },
+  {
+    id: "m2",
+    chatId: "c1",
+    senderId: "u2",
+    text: "Дароу!",
+    createdAt: "2026-04-18T17:12:26.542Z",
+  },
+  {
+    id: "m3",
+    chatId: "c2",
+    senderId: "u3",
+    text: "Ты тут?",
+    createdAt: "2024-04-16T17:14:26.542Z",
+  },
 ];
 
 function App() {
   const [theme, setTheme] = useState("dark");
-  const [activeChatId, setActiveChatId] = useState("c1");
+  const [activeChatId, setActiveChatId] = useState(null);
   const [messages, setMessages] = useState(initialMessages);
-  // console.log(messages);
-  // console.log(activeChatId);
 
   const handleDeleteMessage = messageId => {
     setMessages(prev => prev.filter(message => message.id !== messageId));
@@ -48,18 +81,17 @@ function App() {
     setTheme(prev => (prev === "dark" ? "light" : "dark"));
   };
 
-  const activeChat = chats.find(chat => chat.id === activeChatId);
+  const activeChat = chats.find(chat => chat.id === activeChatId) || null;
 
-  const activeMessages = messages.filter(
-    message => message.chatId === activeChatId
-  );
+  const activeMessages = activeChatId
+    ? messages.filter(message => message.chatId === activeChatId)
+    : [];
 
-  const otherUserId = activeChat.members.find(id => id !== currentUserId);
-  const activeUser = users.find(user => user.id === otherUserId);
+  const otherUserId = activeChat?.members.find(id => id !== currentUserId);
+  const activeUser = users.find(user => user.id === otherUserId) || null;
 
   const handleSendMessage = text => {
     const trimmedText = text.trim();
-
     if (!trimmedText) return;
 
     const newMessage = {
@@ -75,28 +107,39 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <div data-theme={theme} style={{ display: "flex", flexDirection: "row", backgroundColor: "var(--bg)", }}>
-        <aside style={{ width: "100%", maxWidth: "390px", borderRight: "1px solid #303030" }}>
-          <AsideLogo />
-          <ContactList
-            chats={chats}
-            users={users}
-            messages={messages}
-            currentUserId={currentUserId}
-            activeChatId={activeChatId}
-            onSelectChat={setActiveChatId}
-          />
-        </aside>
+      <ThemeProvider theme={theme === "dark" ? darkTheme : lightTheme}>
+        <GlobalStyles />
 
-        <ChatWindow
-          key={activeChatId}
-          activeUser={activeUser}
-          activeMessages={activeMessages}
-          currentUserId={currentUserId}
-          onSendMessage={handleSendMessage}
-          onDeleteMessage={handleDeleteMessage}
-        />
-      </div>
+        <AppLayout>
+          <AppSidebar $chatOpen={!!activeChatId}>
+            <AsideLogo />
+            <ContactList
+              chats={chats}
+              users={users}
+              messages={messages}
+              currentUserId={currentUserId}
+              activeChatId={activeChatId}
+              onSelectChat={setActiveChatId}
+            />
+          </AppSidebar>
+
+          <AppChat $chatOpen={!!activeChatId}>
+            {activeUser ? (
+              <ChatWindow
+                key={activeChatId}
+                activeUser={activeUser}
+                activeMessages={activeMessages}
+                currentUserId={currentUserId}
+                onSendMessage={handleSendMessage}
+                onDeleteMessage={handleDeleteMessage}
+                onBack={() => setActiveChatId(null)}
+              />
+            ) : (
+              <ChatEmpty>Выбери чат</ChatEmpty>
+            )}
+          </AppChat>
+        </AppLayout>
+      </ThemeProvider>
     </ThemeContext.Provider>
   );
 }

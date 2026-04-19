@@ -23,7 +23,7 @@ const ProfileImg = ({url, size}) => {
                 }}
             />
         </div>
-    )
-}
+    );
+};
 
-export default ProfileImg
+export default ProfileImg;

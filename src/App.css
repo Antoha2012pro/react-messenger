@@ -83,12 +83,6 @@ address {
   gap: 6px;
 }
 
-@media (max-width: 600px) {
-  .chat-info {
-    display: none;
-  }
-}
-
 :root {
   --bg: #FFF;
   --title: #515151;
@@ -121,4 +115,89 @@ body {
 .chat-window-box:focus-within .chat-window-btn {
   opacity: 0;
   visibility: hidden;
+}
+
+
+
+
+
+
+
+
+.app-layout {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.app-sidebar {
+  width: 100%;
+  max-width: 390px;
+  border-right: 1px solid #303030;
+  background: var(--bg);
+}
+
+.app-chat {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg);
+}
+
+.chat-empty {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+}
+
+.chat-back-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+  }
+
+  .app-sidebar,
+  .app-chat {
+    position: absolute;
+    inset: 0;
+    max-width: none;
+    width: 100%;
+    border-right: none;
+    background: var(--bg);
+    transition: transform 0.25s ease;
+  }
+
+  .app-sidebar {
+    transform: translateX(0);
+    z-index: 2;
+  }
+
+  .app-chat {
+    transform: translateX(100%);
+    z-index: 3;
+  }
+
+  .app-layout.app-layout--chat-open .app-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .app-layout.app-layout--chat-open .app-chat {
+    transform: translateX(0);
+  }
+
+  .chat-back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--text);
+    margin-right: 6px;
+  }
 }
