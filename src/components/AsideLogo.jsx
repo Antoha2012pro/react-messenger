@@ -1,4 +1,5 @@
 import { useTheme } from "../ThemeContext";
+import { supabase } from "../lib/supabase";
 
 const AsideLogo = () => {
     const { toggleTheme } = useTheme();
@@ -99,6 +100,7 @@ const AsideLogo = () => {
                     </span></button>
             </div>
             <button onClick={toggleTheme} style={{ color: "var(--title)" }}>Переключити тему</button>
+            <button onClick={() => supabase.auth.signOut()}>Выйти</button>
         </div>
     )
 }

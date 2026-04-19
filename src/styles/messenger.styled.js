@@ -143,7 +143,11 @@ export const MessageInnerStyled = styled.div`
   gap: ${({ $isOwn }) => ($isOwn ? "0" : "14px")};
   align-items: flex-start;
   width: fit-content;
-  max-width: 70%;
+  max-width: 90%;
+  
+  @media (min-width: 768px) {
+    max-width: 70%;
+  }
 `;
 
 export const MessageAvatarSpacerStyled = styled.div`
@@ -286,4 +290,56 @@ export const SendButtonStyled = styled.button`
     width: 20px;
     height: 20px;
   }
+`;
+
+
+
+export const MicButtonStyled = styled.button`
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #00a3ff;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.18s ease, background-color 0.18s ease, opacity 0.18s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
+`;
+
+export const StopRecordButtonStyled = styled.button`
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #ff4d4f;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.18s ease, background-color 0.18s ease, opacity 0.18s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
+`;
+
+export const VideoCircleWrapStyled = styled.div`
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #000;
+  flex-shrink: 0;
+`;
+
+export const VideoCircleStyled = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 `;

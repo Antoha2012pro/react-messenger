@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import ContactList from "./components/ContactList";
 import ChatWindow from "./components/ChatWindow";
 import AsideLogo from "./components/AsideLogo";
+import AuthScreen from "./components/AuthScreen";
 import { ThemeContext } from "./ThemeContext";
 import { ThemeProvider } from "styled-components";
+import { supabase } from "./lib/supabase";
 import { lightTheme, darkTheme } from "./styles/theme";
 import {
   GlobalStyles,
@@ -13,8 +15,6 @@ import {
   ChatEmpty,
   ResizeHandleStyled,
 } from "./styles/app.styled";
-
-const currentUserId = "u2";
 
 const users = [
   {
@@ -35,14 +35,22 @@ const users = [
     id: "u3",
     name: "Макс",
     avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfcbg4vgnOEYx67CzLzBbmfSYJ82mdXVA08g&s",
-    isTyping: true,
+    isTyping: false,
     isOnline: true,
+  },
+  {
+    id: "u4",
+    name: "Mr_Donnotella",
+    avatar: "https://cdn.discordapp.com/attachments/1199628062124429332/1495399729767518208/a43039e40fb6d153bebb1e201ec373ab.png?ex=69e61b06&is=69e4c986&hm=8c030c042cbd75674b6d7643708c6377c91f316f568922ca461288788ca482bb&",
+    isTyping: false,
+    isOnline: false,
   },
 ];
 
 const chats = [
   { id: "c1", members: ["u1", "u2"] },
   { id: "c2", members: ["u2", "u3"] },
+  { id: "c3", members: ["u2", "u4"] },
 ];
 
 const initialMessages = [
@@ -67,6 +75,13 @@ const initialMessages = [
     text: "Ты тут?",
     createdAt: "2024-04-16T17:14:26.542Z",
   },
+  {
+    id: "m4",
+    chatId: "c3",
+    senderId: "u4",
+    text: "qwerty?????????????????????????????????????",
+    createdAt: "2024-04-16T17:14:26.542Z",
+  },
 ];
 
 function App() {
@@ -76,6 +91,11 @@ function App() {
 
   const [sidebarWidth, setSidebarWidth] = useState(390);
   const [isResizing, setIsResizing] = useState(false);
+
+  const [session, setSession] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+const currentUserId = session?.user?.id ?? null;
 
   useEffect(() => {
     if (!isResizing) return;
@@ -102,6 +122,24 @@ function App() {
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isResizing]);
+
+  useEffect(() => {
+    const loadSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session ?? null);
+      setAuthLoading(false);
+    };
+
+    loadSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleDeleteMessage = messageId => {
     setMessages(prev => prev.filter(message => message.id !== messageId));
@@ -134,6 +172,40 @@ function App() {
 
     setMessages(prev => [...prev, newMessage]);
   };
+
+  const handleSendAudioMessage = (audioUrl) => {
+    const newMessage = {
+      id: Date.now().toString(),
+      chatId: activeChatId,
+      senderId: currentUserId,
+      type: "audio",
+      audioUrl,
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages(prev => [...prev, newMessage]);
+  };
+
+  const handleSendVideoMessage = videoUrl => {
+    const newMessage = {
+      id: Date.now().toString(),
+      chatId: activeChatId,
+      senderId: currentUserId,
+      type: "video",
+      videoUrl,
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages(prev => [...prev, newMessage]);
+  };
+
+  if (authLoading) {
+    return <div>Загрузка...</div>;
+  }
+
+  if (!session) {
+    return <AuthScreen />;
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
@@ -168,6 +240,8 @@ function App() {
                 activeMessages={activeMessages}
                 currentUserId={currentUserId}
                 onSendMessage={handleSendMessage}
+                onSendAudioMessage={handleSendAudioMessage}
+                onSendVideoMessage={handleSendVideoMessage}
                 onDeleteMessage={handleDeleteMessage}
                 onBack={() => setActiveChatId(null)}
               />

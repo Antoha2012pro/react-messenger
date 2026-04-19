@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useTheme } from "../ThemeContext";
+import { useRecorderAction } from "../hooks/useRecorderAction";
 import ProfileImg from "./ProfileImg";
+import ComposerActionButton from "./ComposerActionButton";
 import { formatMessageTime } from "../utils/formatMessageTime";
 import {
     ButtonContextMenuStyled,
@@ -28,90 +30,87 @@ import {
     MessageMetaStyled,
     MessageOuterStyled,
     MessagesWrapStyled,
-    SendButtonStyled,
+    VideoCircleWrapStyled,
+    VideoCircleStyled,
 } from "../styles/messenger.styled";
+
+const MENU_INITIAL_STATE = {
+    isOpen: false,
+    x: 0,
+    y: 0,
+    messageId: null,
+};
+
+const formatDayLabel = dateString => {
+    const date = new Date(dateString);
+
+    return `${String(date.getDate()).padStart(2, "0")}.${String(
+        date.getMonth() + 1
+    ).padStart(2, "0")}.${date.getFullYear()}`;
+};
+
+const isGroupedMessage = (messages, index) =>
+    index > 0 &&
+    messages[index - 1].senderId === messages[index].senderId &&
+    new Date(messages[index].createdAt) - new Date(messages[index - 1].createdAt) <=
+    5 * 60 * 1000;
+
+const isNewDay = (messages, index) =>
+    index === 0 ||
+    new Date(messages[index - 1].createdAt).toDateString() !==
+    new Date(messages[index].createdAt).toDateString();
 
 const ChatWindow = ({
     activeUser,
     activeMessages,
     currentUserId,
     onSendMessage,
+    onSendAudioMessage,
+    onSendVideoMessage,
     onDeleteMessage,
     onBack,
 }) => {
     const [messageText, setMessageText] = useState("");
-    const [menu, setMenu] = useState({
-        isOpen: false,
-        x: 0,
-        y: 0,
-        messageId: null,
-    });
+    const [menu, setMenu] = useState(MENU_INITIAL_STATE);
+
     const { theme } = useTheme();
+    const hasText = !!messageText.trim();
+
+    const {
+        recordType,
+        isRecording,
+        handleRecordPointerDown,
+        handleRecordClick,
+        resetRecordingState,
+    } = useRecorderAction({
+        hasText,
+        onSendAudioMessage,
+        onSendVideoMessage,
+    });
+
+    const closeMenu = () => setMenu(MENU_INITIAL_STATE);
 
     const openMenu = (event, messageId) => {
         event.preventDefault();
 
+        const rect = event.currentTarget.getBoundingClientRect();
         const isRightClick = event.type === "contextmenu";
 
         setMenu({
             isOpen: true,
-            x: isRightClick
-                ? event.clientX
-                : event.currentTarget.getBoundingClientRect().right - 160,
-            y: isRightClick
-                ? event.clientY
-                : event.currentTarget.getBoundingClientRect().bottom + 6,
+            x: isRightClick ? event.clientX : rect.right - 160,
+            y: isRightClick ? event.clientY : rect.bottom + 6,
             messageId,
-        });
-    };
-
-    const closeMenu = () => {
-        setMenu({
-            isOpen: false,
-            x: 0,
-            y: 0,
-            messageId: null,
         });
     };
 
     const handleSubmit = event => {
         event.preventDefault();
-
-        if (!messageText.trim()) return;
+        if (!hasText) return;
 
         onSendMessage(messageText);
         setMessageText("");
-    };
-
-    const isGroupedMessage = (messages, index) => {
-        if (index === 0) return false;
-
-        const prev = messages[index - 1];
-        const current = messages[index];
-
-        return (
-            prev.senderId === current.senderId &&
-            new Date(current.createdAt) - new Date(prev.createdAt) <= 5 * 60 * 1000
-        );
-    };
-
-    const formatDayLabel = dateString => {
-        const date = new Date(dateString);
-
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-
-        return `${day}.${month}.${year}`;
-    };
-
-    const isNewDay = (messages, index) => {
-        if (index === 0) return true;
-
-        const prev = new Date(messages[index - 1].createdAt);
-        const current = new Date(messages[index].createdAt);
-
-        return prev.toDateString() !== current.toDateString();
+        resetRecordingState();
     };
 
     return (
@@ -137,19 +136,12 @@ const ChatWindow = ({
 
             <MessagesWrapStyled>
                 {activeMessages.map((message, index) => {
-                    const isGrouped = isGroupedMessage(activeMessages, index);
                     const isOwn = message.senderId === currentUserId;
+                    const isGrouped = isGroupedMessage(activeMessages, index);
                     const showDayLabel = isNewDay(activeMessages, index);
 
                     return (
-                        <div
-                            key={message.id}
-                            onClick={() => {
-                                if (menu.isOpen) {
-                                    closeMenu();
-                                }
-                            }}
-                        >
+                        <div key={message.id} onClick={() => menu.isOpen && closeMenu()}>
                             {showDayLabel && (
                                 <DayDividerWrapStyled>
                                     <DayDividerStyled>
@@ -173,12 +165,9 @@ const ChatWindow = ({
                                     <MessageContentStyled $isOwn={isOwn}>
                                         {!isGrouped && (
                                             <MessageMetaStyled $isOwn={isOwn}>
-                                                {!isOwn ? (
-                                                    <MessageAuthorStyled>{activeUser.name}</MessageAuthorStyled>
-                                                ) : (
-                                                    <MessageAuthorStyled>Ви</MessageAuthorStyled>
-                                                )}
-
+                                                <MessageAuthorStyled>
+                                                    {isOwn ? "Ви" : activeUser.name}
+                                                </MessageAuthorStyled>
                                                 <p>{formatMessageTime(message.createdAt)}</p>
                                             </MessageMetaStyled>
                                         )}
@@ -189,7 +178,20 @@ const ChatWindow = ({
                                                 $lightTheme={theme === "light"}
                                                 onContextMenu={event => openMenu(event, message.id)}
                                             >
-                                                {message.text}
+                                                {message.type === "audio" ? (
+                                                    <audio controls src={message.audioUrl} />
+                                                ) : message.type === "video" ? (
+                                                    <VideoCircleWrapStyled>
+                                                        <VideoCircleStyled
+                                                            controls
+                                                            playsInline
+                                                            preload="metadata"
+                                                            src={message.videoUrl}
+                                                        />
+                                                    </VideoCircleWrapStyled>
+                                                ) : (
+                                                    message.text
+                                                )}
                                             </MessageBubbleStyled>
 
                                             <ButtonContextMenuStyled
@@ -218,7 +220,10 @@ const ChatWindow = ({
                             Удалить
                         </ContextMenuDeleteButtonStyled>
 
-                        <ContextMenuCloseButtonStyled onClick={closeMenu} aria-label="Закрыть">
+                        <ContextMenuCloseButtonStyled
+                            onClick={closeMenu}
+                            aria-label="Закрыть"
+                        >
                             Закрыть
                         </ContextMenuCloseButtonStyled>
                     </ContextMenuStyled>
@@ -230,7 +235,6 @@ const ChatWindow = ({
                     <button aria-label="Емодзи">😊</button>
 
                     <InputMessageStyled
-                        className="chat-window-input"
                         type="text"
                         value={messageText}
                         onChange={event => setMessageText(event.target.value)}
@@ -239,14 +243,15 @@ const ChatWindow = ({
                 </MessageFormLeftStyled>
 
                 <MessageFormRightStyled>
-                    <button aria-label="Голосове сообщение">🎙️</button>
                     <button aria-label="Прикрепить файл">📂</button>
 
-                    <SendButtonStyled type="submit">
-                        <svg>
-                            <use href="/img/symbol-defs.svg#icon-planet"></use>
-                        </svg>
-                    </SendButtonStyled>
+                    <ComposerActionButton
+                        hasText={hasText}
+                        isRecording={isRecording}
+                        recordType={recordType}
+                        onPointerDown={handleRecordPointerDown}
+                        onClick={handleRecordClick}
+                    />
                 </MessageFormRightStyled>
             </MessageFormStyled>
         </ChatWindowWrapStyled>
