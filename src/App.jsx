@@ -95,7 +95,7 @@ function App() {
 
   const [serverChatId, setServerChatId] = useState(null);
 
-  const [selectedChat, setSelectedChat] = useState(null);
+  const [, setSelectedChat] = useState(null);
 
   const currentUserId = currentUser ? String(currentUser.id) : null;
 
