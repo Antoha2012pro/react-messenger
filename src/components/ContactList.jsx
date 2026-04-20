@@ -1,5 +1,5 @@
 import ProfileImg from "./ProfileImg";
-import { formatMessageTime } from "../utils/formatMessageTime";
+// import { formatMessageTime } from "../utils/formatMessageTime";
 import {
   ChatInfoStyled,
   ContactButtonStyled,
@@ -24,8 +24,8 @@ const ContactList = ({
         const otherUserId = chat.members.find(id => id !== currentUserId);
         const otherUser = users.find(user => user.id === otherUserId);
 
-        const chatMessages = messages.filter(message => message.chatId === chat.id);
-        const lastMessage = chatMessages[chatMessages.length - 1];
+        // const chatMessages = messages.filter(message => message.chatId === chat.id);
+        // const lastMessage = chatMessages[chatMessages.length - 1];
 
         return (
           <ContactButtonStyled
@@ -39,16 +39,20 @@ const ContactList = ({
                 <ChatInfoStyled>
                   <ContactNameStyled>{otherUser.name}</ContactNameStyled>
 
-                  <ContactPreviewStyled $typing={otherUser.isTyping}>
-                    {otherUser.isTyping
+                  <ContactPreviewStyled $typing={false}>
+                  {/* <ContactPreviewStyled $typing={otherUser.isTyping}> */}
+                    {/* {otherUser.isTyping
                       ? "Пише..."
-                      : lastMessage?.text || "Немає повідомленнь"}
+                      : lastMessage?.text || "Немає повідомленнь"} */}
+                      Открыть чат
                   </ContactPreviewStyled>
                 </ChatInfoStyled>
 
-                <ContactTimeStyled>
-                  {lastMessage ? formatMessageTime(lastMessage.createdAt) : ""}
-                </ContactTimeStyled>
+                <ContactTimeStyled />
+                {/* <ContactTimeStyled> */}
+                  {/* {lastMessage ? formatMessageTime(lastMessage.createdAt) : ""} */}
+
+                {/* </ContactTimeStyled> */}
               </ContactTextWrapStyled>
             </ContactButtonInnerStyled>
           </ContactButtonStyled>

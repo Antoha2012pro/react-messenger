@@ -95,7 +95,7 @@ function App() {
 
   const [serverChatId, setServerChatId] = useState(null);
 
-  const [, setSelectedChat] = useState(null);
+  // const [, setSelectedChat] = useState(null);
 
   const currentUserId = currentUser ? String(currentUser.id) : null;
 
@@ -109,7 +109,7 @@ function App() {
       }
 
       try {
-        const data = await authApi.me();
+        const data = await authApi.getMe();
         setCurrentUser(data.user);
       } catch (error) {
         localStorage.removeItem("token");
@@ -177,9 +177,9 @@ function App() {
     };
   }, [isResizing]);
 
-  const handleDeleteMessage = messageId => {
-    setMessages(prev => prev.filter(message => message.id !== messageId));
-  };
+  // const handleDeleteMessage = messageId => {
+  //   setMessages(prev => prev.filter(message => message.id !== messageId));
+  // };
 
   const toggleTheme = () => {
     setTheme(prev => (prev === "dark" ? "light" : "dark"));
@@ -200,18 +200,23 @@ function App() {
 
   const handleSelectChat = async chatId => {
     setActiveChatId(chatId);
+    setServerChatId(null);
+    setMessages([]);
 
     const otherUserId = chatId.replace("direct-", "");
 
     try {
       const data = await chatsApi.createDirectChat(Number(otherUserId));
+      const realChatId = String(data.chat.id);
 
-      setSelectedChat(data.chat);
-      setServerChatId(String(data.chat.id));
+      setServerChatId(realChatId);
+
+      const messagesData = await chatsApi.getMessages(realChatId);
+      setMessages(messagesData.messages || []);
     } catch (error) {
       console.error(error);
-      setSelectedChat(null);
       setServerChatId(null);
+      setMessages([]);
     }
   };
 
@@ -230,9 +235,7 @@ function App() {
 
   const activeChat = chats.find(chat => chat.id === activeChatId) || null;
 
-  const activeMessages = serverChatId
-    ? messages.filter(message => String(message.chatId) === String(serverChatId))
-    : [];
+  const activeMessages = messages;
 
   const otherUserId = activeChat?.members.find(id => id !== currentUserId);
   const activeUser = contacts.find(item => item.id === otherUserId) || null;
@@ -254,31 +257,31 @@ function App() {
     }
   };
 
-  const handleSendAudioMessage = audioUrl => {
-    const newMessage = {
-      id: Date.now().toString(),
-      chatId: activeChatId,
-      senderId: currentUserId,
-      type: "audio",
-      audioUrl,
-      createdAt: new Date().toISOString(),
-    };
+  // const handleSendAudioMessage = audioUrl => {
+  //   const newMessage = {
+  //     id: Date.now().toString(),
+  //     chatId: activeChatId,
+  //     senderId: currentUserId,
+  //     type: "audio",
+  //     audioUrl,
+  //     createdAt: new Date().toISOString(),
+  //   };
 
-    setMessages(prev => [...prev, newMessage]);
-  };
+  //   setMessages(prev => [...prev, newMessage]);
+  // };
 
-  const handleSendVideoMessage = videoUrl => {
-    const newMessage = {
-      id: Date.now().toString(),
-      chatId: activeChatId,
-      senderId: currentUserId,
-      type: "video",
-      videoUrl,
-      createdAt: new Date().toISOString(),
-    };
+  // const handleSendVideoMessage = videoUrl => {
+  //   const newMessage = {
+  //     id: Date.now().toString(),
+  //     chatId: activeChatId,
+  //     senderId: currentUserId,
+  //     type: "video",
+  //     videoUrl,
+  //     createdAt: new Date().toISOString(),
+  //   };
 
-    setMessages(prev => [...prev, newMessage]);
-  };
+  //   setMessages(prev => [...prev, newMessage]);
+  // };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
@@ -313,9 +316,9 @@ function App() {
                 activeMessages={activeMessages}
                 currentUserId={currentUserId}
                 onSendMessage={handleSendMessage}
-                onSendAudioMessage={handleSendAudioMessage}
-                onSendVideoMessage={handleSendVideoMessage}
-                onDeleteMessage={handleDeleteMessage}
+                // onSendAudioMessage={handleSendAudioMessage}
+                // onSendVideoMessage={handleSendVideoMessage}
+                // onDeleteMessage={handleDeleteMessage}
                 onBack={() => setActiveChatId(null)}
               />
             ) : (

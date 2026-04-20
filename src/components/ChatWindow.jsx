@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useTheme } from "../ThemeContext";
-import { useRecorderAction } from "../hooks/useRecorderAction";
+// import { useRecorderAction } from "../hooks/useRecorderAction";
 import ProfileImg from "./ProfileImg";
-import ComposerActionButton from "./ComposerActionButton";
+// import ComposerActionButton from "./ComposerActionButton";
 import { formatMessageTime } from "../utils/formatMessageTime";
 import {
     ButtonContextMenuStyled,
@@ -30,8 +30,8 @@ import {
     MessageMetaStyled,
     MessageOuterStyled,
     MessagesWrapStyled,
-    VideoCircleWrapStyled,
-    VideoCircleStyled,
+    // VideoCircleWrapStyled,
+    // VideoCircleStyled,
 } from "../styles/messenger.styled";
 
 const MENU_INITIAL_STATE = {
@@ -65,28 +65,28 @@ const ChatWindow = ({
     activeMessages,
     currentUserId,
     onSendMessage,
-    onSendAudioMessage,
-    onSendVideoMessage,
-    onDeleteMessage,
+    // onSendAudioMessage,
+    // onSendVideoMessage,
+    // onDeleteMessage,
     onBack,
 }) => {
     const [messageText, setMessageText] = useState("");
     const [menu, setMenu] = useState(MENU_INITIAL_STATE);
 
     const { theme } = useTheme();
-    const hasText = !!messageText.trim();
+    // const hasText = !!messageText.trim();
 
-    const {
-        recordType,
-        isRecording,
-        handleRecordPointerDown,
-        handleRecordClick,
-        resetRecordingState,
-    } = useRecorderAction({
-        hasText,
-        onSendAudioMessage,
-        onSendVideoMessage,
-    });
+    // const {
+    //     recordType,
+    //     isRecording,
+    //     handleRecordPointerDown,
+    //     handleRecordClick,
+    //     resetRecordingState,
+    // } = useRecorderAction({
+    //     hasText,
+    //     onSendAudioMessage,
+    //     onSendVideoMessage,
+    // });
 
     const closeMenu = () => setMenu(MENU_INITIAL_STATE);
 
@@ -106,11 +106,12 @@ const ChatWindow = ({
 
     const handleSubmit = event => {
         event.preventDefault();
-        if (!hasText) return;
+        if (!messageText.trim()) return;
+        // if (!hasText) return;
 
         onSendMessage(messageText);
         setMessageText("");
-        resetRecordingState();
+        // resetRecordingState();
     };
 
     return (
@@ -178,7 +179,7 @@ const ChatWindow = ({
                                                 $lightTheme={theme === "light"}
                                                 onContextMenu={event => openMenu(event, message.id)}
                                             >
-                                                {message.type === "audio" ? (
+                                                {/* {message.type === "audio" ? (
                                                     <audio controls src={message.audioUrl} />
                                                 ) : message.type === "video" ? (
                                                     <VideoCircleWrapStyled>
@@ -191,7 +192,8 @@ const ChatWindow = ({
                                                     </VideoCircleWrapStyled>
                                                 ) : (
                                                     message.text
-                                                )}
+                                                )} */}
+                                                {message.text}
                                             </MessageBubbleStyled>
 
                                             <ButtonContextMenuStyled
@@ -212,7 +214,7 @@ const ChatWindow = ({
                     <ContextMenuStyled $x={menu.x} $y={menu.y}>
                         <ContextMenuDeleteButtonStyled
                             onClick={() => {
-                                onDeleteMessage(menu.messageId);
+                                // onDeleteMessage(menu.messageId);
                                 closeMenu();
                             }}
                             aria-label="Удалить"
@@ -232,7 +234,7 @@ const ChatWindow = ({
 
             <MessageFormStyled onSubmit={handleSubmit}>
                 <MessageFormLeftStyled>
-                    <button aria-label="Емодзи">😊</button>
+                    <button aria-label="Емодзи" type="button">😊</button>
 
                     <InputMessageStyled
                         type="text"
@@ -243,15 +245,17 @@ const ChatWindow = ({
                 </MessageFormLeftStyled>
 
                 <MessageFormRightStyled>
-                    <button aria-label="Прикрепить файл">📂</button>
+                    <button aria-label="Прикрепить файл" type="button">📂</button>
 
-                    <ComposerActionButton
+                    {/* <ComposerActionButton
                         hasText={hasText}
                         isRecording={isRecording}
                         recordType={recordType}
                         onPointerDown={handleRecordPointerDown}
                         onClick={handleRecordClick}
-                    />
+                    /> */}
+                    <button type="submit">O</button>
+
                 </MessageFormRightStyled>
             </MessageFormStyled>
         </ChatWindowWrapStyled>
