@@ -93,12 +93,12 @@ const ChatWindow = ({
 
             <MessagesWrapStyled>
                 {activeMessages.map((message, index) => {
-                    const isOwn = message.senderId === currentUserId;
+                    const isOwn = String(message.senderId) === currentUserId
                     const isGrouped = isGroupedMessage(activeMessages, index);
                     const showDayLabel = isNewDay(activeMessages, index);
 
                     return (
-                        <div key={message.id} 
+                        <div key={message.id}
                         // onClick={() => menu.isOpen && closeMenu()}
                         >
                             {showDayLabel && (
@@ -135,7 +135,7 @@ const ChatWindow = ({
                                             <MessageBubbleStyled
                                                 $isOwn={isOwn}
                                                 $lightTheme={theme === "light"}
-                                                // onContextMenu={event => openMenu(event, message.id)}
+                                            // onContextMenu={event => openMenu(event, message.id)}
                                             >
                                                 {message.text}
                                             </MessageBubbleStyled>

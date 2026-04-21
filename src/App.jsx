@@ -66,14 +66,16 @@ function App() {
       try {
         const data = await usersApi.getUsers();
 
-        const mappedUsers = (data.users || []).map(item => ({
-          id: String(item.id),
-          name: item.username,
-          avatar: item.avatarUrl || fallbackAvatar,
-          isTyping: false,
-          isOnline: false,
-          email: item.email,
-        }));
+        const mappedUsers = (data.users || [])
+          .filter(item => String(item.id) !== String(currentUser.id))
+          .map(item => ({
+            id: String(item.id),
+            name: item.username,
+            avatar: item.avatarUrl || fallbackAvatar,
+            isTyping: false,
+            isOnline: false,
+            email: item.email,
+          }));
 
         setContacts(mappedUsers);
       } catch (error) {
@@ -128,6 +130,13 @@ function App() {
     setCurrentUser(nextUser);
   };
 
+  const normalizeMessage = message => ({
+    ...message,
+    id: String(message.id),
+    chatId: String(message.chatId),
+    senderId: String(message.senderId),
+  });
+
   const handleSelectChat = async chatId => {
     setActiveChatId(chatId);
     setServerChatId(null);
@@ -142,7 +151,7 @@ function App() {
       setServerChatId(realChatId);
 
       const messagesData = await chatsApi.getMessages(realChatId);
-      setMessages(messagesData.messages || []);
+      setMessages((messagesData.messages || []).map(normalizeMessage));
     } catch (error) {
       console.error(error);
       setServerChatId(null);
@@ -181,7 +190,7 @@ function App() {
         text: trimmedText,
       });
 
-      setMessages(prev => [...prev, data.message]);
+      setMessages(prev => [...prev, normalizeMessage(data.message)]);
     } catch (error) {
       console.error(error);
     }
