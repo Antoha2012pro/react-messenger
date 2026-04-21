@@ -15,6 +15,12 @@ import {
   ChatEmpty,
   ResizeHandleStyled,
 } from "./styles/app.styled";
+import {
+  normalizeMessage,
+  mapUserToContact,
+  buildDirectChats,
+  getOtherUserId,
+} from "./utils/chat";
 
 function App() {
   const [theme, setTheme] = useState("dark");
@@ -56,9 +62,6 @@ function App() {
     loadUser();
   }, []);
 
-  const fallbackAvatar =
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsc3WLwt1VO_zCe9FTBOByMFq7iya4QO38gA&s";
-
   useEffect(() => {
     if (!currentUser) return;
 
@@ -68,14 +71,7 @@ function App() {
 
         const mappedUsers = (data.users || [])
           .filter(item => String(item.id) !== String(currentUser.id))
-          .map(item => ({
-            id: String(item.id),
-            name: item.username,
-            avatar: item.avatarUrl || fallbackAvatar,
-            isTyping: false,
-            isOnline: false,
-            email: item.email,
-          }));
+          .map(mapUserToContact);
 
         setContacts(mappedUsers);
       } catch (error) {
@@ -130,13 +126,6 @@ function App() {
     setCurrentUser(nextUser);
   };
 
-  const normalizeMessage = message => ({
-    ...message,
-    id: String(message.id),
-    chatId: String(message.chatId),
-    senderId: String(message.senderId),
-  });
-
   const handleSelectChat = async chatId => {
     setActiveChatId(chatId);
     setServerChatId(null);
@@ -167,16 +156,14 @@ function App() {
     return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
   }
 
-  const chats = contacts.map(item => ({
-    id: `direct-${item.id}`,
-    members: [currentUserId, item.id],
-  }));
+  const chats = buildDirectChats(contacts, currentUserId);
 
   const activeChat = chats.find(chat => chat.id === activeChatId) || null;
 
-  const activeMessages = messages;
-
-  const otherUserId = activeChat?.members.find(id => id !== currentUserId);
+  const otherUserId = activeChat
+  ? getOtherUserId(activeChat.members, currentUserId)
+  : null;
+  
   const activeUser = contacts.find(item => item.id === otherUserId) || null;
 
   const handleSendMessage = async text => {
@@ -226,7 +213,7 @@ function App() {
               <ChatWindow
                 key={activeChatId}
                 activeUser={activeUser}
-                activeMessages={activeMessages}
+                activeMessages={messages}
                 currentUserId={currentUserId}
                 onSendMessage={handleSendMessage}
                 onBack={() => setActiveChatId(null)}

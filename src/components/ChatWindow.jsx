@@ -99,7 +99,6 @@ const ChatWindow = ({
 
                     return (
                         <div key={message.id}
-                        // onClick={() => menu.isOpen && closeMenu()}
                         >
                             {showDayLabel && (
                                 <DayDividerWrapStyled>
@@ -135,17 +134,9 @@ const ChatWindow = ({
                                             <MessageBubbleStyled
                                                 $isOwn={isOwn}
                                                 $lightTheme={theme === "light"}
-                                            // onContextMenu={event => openMenu(event, message.id)}
                                             >
                                                 {message.text}
                                             </MessageBubbleStyled>
-
-                                            {/* <ButtonContextMenuStyled
-                                                onClick={event => openMenu(event, message.id)}
-                                                aria-label="Открыть меню сообщения"
-                                            >
-                                                ⋮
-                                            </ButtonContextMenuStyled> */}
                                         </MessageBubbleRowStyled>
                                     </MessageContentStyled>
                                 </MessageInnerStyled>
