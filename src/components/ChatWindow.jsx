@@ -5,16 +5,16 @@ import ProfileImg from "./ProfileImg";
 // import ComposerActionButton from "./ComposerActionButton";
 import { formatMessageTime } from "../utils/formatMessageTime";
 import {
-    ButtonContextMenuStyled,
+    // ButtonContextMenuStyled,
     ChatBackButtonStyled,
     ChatHeaderInfoStyled,
     ChatHeaderStyled,
     ChatStatusStyled,
     ChatTitleStyled,
     ChatWindowWrapStyled,
-    ContextMenuCloseButtonStyled,
-    ContextMenuDeleteButtonStyled,
-    ContextMenuStyled,
+    // ContextMenuCloseButtonStyled,
+    // ContextMenuDeleteButtonStyled,
+    // ContextMenuStyled,
     DayDividerStyled,
     DayDividerWrapStyled,
     InputMessageStyled,
@@ -30,16 +30,7 @@ import {
     MessageMetaStyled,
     MessageOuterStyled,
     MessagesWrapStyled,
-    // VideoCircleWrapStyled,
-    // VideoCircleStyled,
 } from "../styles/messenger.styled";
-
-const MENU_INITIAL_STATE = {
-    isOpen: false,
-    x: 0,
-    y: 0,
-    messageId: null,
-};
 
 const formatDayLabel = dateString => {
     const date = new Date(dateString);
@@ -65,53 +56,18 @@ const ChatWindow = ({
     activeMessages,
     currentUserId,
     onSendMessage,
-    // onSendAudioMessage,
-    // onSendVideoMessage,
-    // onDeleteMessage,
     onBack,
 }) => {
     const [messageText, setMessageText] = useState("");
-    const [menu, setMenu] = useState(MENU_INITIAL_STATE);
 
     const { theme } = useTheme();
-    // const hasText = !!messageText.trim();
-
-    // const {
-    //     recordType,
-    //     isRecording,
-    //     handleRecordPointerDown,
-    //     handleRecordClick,
-    //     resetRecordingState,
-    // } = useRecorderAction({
-    //     hasText,
-    //     onSendAudioMessage,
-    //     onSendVideoMessage,
-    // });
-
-    const closeMenu = () => setMenu(MENU_INITIAL_STATE);
-
-    const openMenu = (event, messageId) => {
-        event.preventDefault();
-
-        const rect = event.currentTarget.getBoundingClientRect();
-        const isRightClick = event.type === "contextmenu";
-
-        setMenu({
-            isOpen: true,
-            x: isRightClick ? event.clientX : rect.right - 160,
-            y: isRightClick ? event.clientY : rect.bottom + 6,
-            messageId,
-        });
-    };
 
     const handleSubmit = event => {
         event.preventDefault();
         if (!messageText.trim()) return;
-        // if (!hasText) return;
 
         onSendMessage(messageText);
         setMessageText("");
-        // resetRecordingState();
     };
 
     return (
@@ -142,7 +98,9 @@ const ChatWindow = ({
                     const showDayLabel = isNewDay(activeMessages, index);
 
                     return (
-                        <div key={message.id} onClick={() => menu.isOpen && closeMenu()}>
+                        <div key={message.id} 
+                        // onClick={() => menu.isOpen && closeMenu()}
+                        >
                             {showDayLabel && (
                                 <DayDividerWrapStyled>
                                     <DayDividerStyled>
@@ -177,31 +135,17 @@ const ChatWindow = ({
                                             <MessageBubbleStyled
                                                 $isOwn={isOwn}
                                                 $lightTheme={theme === "light"}
-                                                onContextMenu={event => openMenu(event, message.id)}
+                                                // onContextMenu={event => openMenu(event, message.id)}
                                             >
-                                                {/* {message.type === "audio" ? (
-                                                    <audio controls src={message.audioUrl} />
-                                                ) : message.type === "video" ? (
-                                                    <VideoCircleWrapStyled>
-                                                        <VideoCircleStyled
-                                                            controls
-                                                            playsInline
-                                                            preload="metadata"
-                                                            src={message.videoUrl}
-                                                        />
-                                                    </VideoCircleWrapStyled>
-                                                ) : (
-                                                    message.text
-                                                )} */}
                                                 {message.text}
                                             </MessageBubbleStyled>
 
-                                            <ButtonContextMenuStyled
+                                            {/* <ButtonContextMenuStyled
                                                 onClick={event => openMenu(event, message.id)}
                                                 aria-label="Открыть меню сообщения"
                                             >
                                                 ⋮
-                                            </ButtonContextMenuStyled>
+                                            </ButtonContextMenuStyled> */}
                                         </MessageBubbleRowStyled>
                                     </MessageContentStyled>
                                 </MessageInnerStyled>
@@ -210,11 +154,10 @@ const ChatWindow = ({
                     );
                 })}
 
-                {menu.isOpen && (
+                {/* {menu.isOpen && (
                     <ContextMenuStyled $x={menu.x} $y={menu.y}>
                         <ContextMenuDeleteButtonStyled
                             onClick={() => {
-                                // onDeleteMessage(menu.messageId);
                                 closeMenu();
                             }}
                             aria-label="Удалить"
@@ -229,7 +172,7 @@ const ChatWindow = ({
                             Закрыть
                         </ContextMenuCloseButtonStyled>
                     </ContextMenuStyled>
-                )}
+                )} */}
             </MessagesWrapStyled>
 
             <MessageFormStyled onSubmit={handleSubmit}>

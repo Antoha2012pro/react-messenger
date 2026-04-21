@@ -13,7 +13,7 @@ import {
 const ContactList = ({
   chats,
   users,
-  messages,
+  // messages,
   currentUserId,
   activeChatId,
   onSelectChat,
