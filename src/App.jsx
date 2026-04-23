@@ -149,16 +149,16 @@ function App() {
     loadUsers();
   }, [currentUser]);
 
-  const loadChatMessages = useCallback(async chatId => {
-    try {
-      const messagesData = await chatsApi.getMessages(chatId);
-      const nextMessages = (messagesData.messages || []).map(normalizeMessage);
+  // const loadChatMessages = useCallback(async chatId => {
+  //   try {
+  //     const messagesData = await chatsApi.getMessages(chatId);
+  //     const nextMessages = (messagesData.messages || []).map(normalizeMessage);
 
-      setMessages(prev => mergeMessagesById([...prev, ...nextMessages]));
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
+  //     setMessages(prev => mergeMessagesById([...prev, ...nextMessages]));
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (!isResizing) return;
