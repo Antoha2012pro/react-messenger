@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ContactList from "./components/ContactList";
 import ChatWindow from "./components/ChatWindow";
 import AsideLogo from "./components/AsideLogo";
@@ -20,6 +20,7 @@ import {
   mapUserToContact,
   buildDirectChats,
   getOtherUserId,
+  mergeMessagesById,
 } from "./utils/chat";
 
 function App() {
@@ -36,6 +37,8 @@ function App() {
   const [contacts, setContacts] = useState([]);
 
   const [serverChatId, setServerChatId] = useState(null);
+
+  const [chatMetaById, setChatMetaById] = useState({});
 
   const currentUserId = currentUser ? String(currentUser.id) : null;
 
@@ -62,6 +65,69 @@ function App() {
     loadUser();
   }, []);
 
+  const fetchChatMessages = useCallback(async chatId => {
+    const messagesData = await chatsApi.getMessages(chatId);
+
+    return mergeMessagesById(
+      (messagesData.messages || []).map(normalizeMessage)
+    );
+  }, []);
+
+  const updateChatMeta = useCallback((localChatId, patch) => {
+    setChatMetaById(prev => ({
+      ...prev,
+      [localChatId]: {
+        ...prev[localChatId],
+        ...patch,
+      },
+    }));
+  }, []);
+
+  const syncChatPreview = useCallback(async (otherUserId, localChatId) => {
+    try {
+      const data = await chatsApi.createDirectChat(Number(otherUserId));
+      const realChatId = String(data.chat.id);
+
+      const normalizedMessages = await fetchChatMessages(realChatId);
+      const lastMessage =
+        normalizedMessages[normalizedMessages.length - 1] || null;
+
+      updateChatMeta(localChatId, {
+        serverChatId: realChatId,
+        lastMessage,
+      });
+
+      return {
+        realChatId,
+        messages: normalizedMessages,
+        lastMessage,
+      };
+    } catch (error) {
+      console.error(error);
+
+      updateChatMeta(localChatId, {
+        serverChatId: null,
+        lastMessage: null,
+      });
+
+      return null;
+    }
+  }, [fetchChatMessages, updateChatMeta]);
+
+  useEffect(() => {
+    if (!contacts.length) return;
+
+    const preloadChatPreviews = async () => {
+      await Promise.all(
+        contacts.map(contact =>
+          syncChatPreview(contact.id, `direct-${contact.id}`)
+        )
+      );
+    };
+
+    preloadChatPreviews();
+  }, [contacts, syncChatPreview]);
+
   useEffect(() => {
     if (!currentUser) return;
 
@@ -82,6 +148,17 @@ function App() {
 
     loadUsers();
   }, [currentUser]);
+
+  const loadChatMessages = useCallback(async chatId => {
+    try {
+      const messagesData = await chatsApi.getMessages(chatId);
+      const nextMessages = (messagesData.messages || []).map(normalizeMessage);
+
+      setMessages(prev => mergeMessagesById([...prev, ...nextMessages]));
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isResizing) return;
@@ -109,6 +186,28 @@ function App() {
     };
   }, [isResizing]);
 
+  useEffect(() => {
+    if (!serverChatId || !activeChatId) return;
+
+    const intervalId = setInterval(async () => {
+      try {
+        const normalizedMessages = await fetchChatMessages(serverChatId);
+
+        setMessages(normalizedMessages);
+
+        updateChatMeta(activeChatId, {
+          serverChatId,
+          lastMessage:
+            normalizedMessages[normalizedMessages.length - 1] || null,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [serverChatId, activeChatId, fetchChatMessages, updateChatMeta]);
+
   const toggleTheme = () => {
     setTheme(prev => (prev === "dark" ? "light" : "dark"));
   };
@@ -134,13 +233,32 @@ function App() {
     const otherUserId = chatId.replace("direct-", "");
 
     try {
-      const data = await chatsApi.createDirectChat(Number(otherUserId));
-      const realChatId = String(data.chat.id);
+      let realChatId = chatMetaById[chatId]?.serverChatId;
+      let normalizedMessages = [];
+
+      if (!realChatId) {
+        const syncedChat = await syncChatPreview(otherUserId, chatId);
+
+        if (!syncedChat) {
+          setServerChatId(null);
+          setMessages([]);
+          return;
+        }
+
+        realChatId = syncedChat.realChatId;
+        normalizedMessages = syncedChat.messages;
+      } else {
+        normalizedMessages = await fetchChatMessages(realChatId);
+
+        updateChatMeta(chatId, {
+          serverChatId: realChatId,
+          lastMessage:
+            normalizedMessages[normalizedMessages.length - 1] || null,
+        });
+      }
 
       setServerChatId(realChatId);
-
-      const messagesData = await chatsApi.getMessages(realChatId);
-      setMessages((messagesData.messages || []).map(normalizeMessage));
+      setMessages(normalizedMessages);
     } catch (error) {
       console.error(error);
       setServerChatId(null);
@@ -161,9 +279,9 @@ function App() {
   const activeChat = chats.find(chat => chat.id === activeChatId) || null;
 
   const otherUserId = activeChat
-  ? getOtherUserId(activeChat.members, currentUserId)
-  : null;
-  
+    ? getOtherUserId(activeChat.members, currentUserId)
+    : null;
+
   const activeUser = contacts.find(item => item.id === otherUserId) || null;
 
   const handleSendMessage = async text => {
@@ -177,7 +295,17 @@ function App() {
         text: trimmedText,
       });
 
-      setMessages(prev => [...prev, normalizeMessage(data.message)]);
+      const nextMessages = mergeMessagesById([
+        ...messages,
+        normalizeMessage(data.message),
+      ]);
+
+      setMessages(nextMessages);
+
+      updateChatMeta(activeChatId, {
+        serverChatId,
+        lastMessage: nextMessages[nextMessages.length - 1] || null,
+      });
     } catch (error) {
       console.error(error);
     }
@@ -194,9 +322,9 @@ function App() {
             <ContactList
               chats={chats}
               users={contacts}
-              // messages={messages}
               currentUserId={currentUserId}
               activeChatId={activeChatId}
+              chatMetaById={chatMetaById}
               onSelectChat={handleSelectChat}
             />
           </AppSidebar>

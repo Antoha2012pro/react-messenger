@@ -25,3 +25,16 @@ export const buildDirectChats = (contacts, currentUserId) =>
 
 export const getOtherUserId = (members, currentUserId) =>
   members.find(id => id !== currentUserId);
+
+export const mergeMessagesById = messages => {
+  const uniqueMessages = new Map();
+
+  messages.forEach(message => {
+    const normalized = normalizeMessage(message);
+    uniqueMessages.set(normalized.id, normalized);
+  });
+
+  return Array.from(uniqueMessages.values()).sort(
+    (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+  );
+};
