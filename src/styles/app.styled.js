@@ -19,6 +19,7 @@ export const GlobalStyles = createGlobalStyle`
     background: ${({ theme }) => theme.bg};
     color: ${({ theme }) => theme.text};
     font-family: Inter, sans-serif;
+    transition: background-color 0.22s ease, color 0.22s ease;
   }
 
   h1, h2, h3, h4, h5, h6, p {
@@ -49,6 +50,7 @@ export const GlobalStyles = createGlobalStyle`
     border: none;
     cursor: pointer;
     background: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   img,
@@ -71,6 +73,7 @@ export const AppLayout = styled.div`
   flex-direction: row;
   min-height: 100vh;
   background: ${({ theme }) => theme.bg};
+  transition: background-color 0.22s ease;
 
   @media (max-width: 768px) {
     position: relative;
@@ -83,13 +86,14 @@ export const AppSidebar = styled.aside`
   flex-shrink: 0;
   border-right: 1px solid ${({ theme }) => theme.border};
   background: ${({ theme }) => theme.bg};
+  transition: width 0.12s ease, background-color 0.22s ease, border-color 0.22s ease;
 
   @media (max-width: 768px) {
     position: absolute;
     inset: 0;
     width: 100%;
     border-right: none;
-    transition: transform 0.25s ease;
+    transition: transform 0.25s ease, background-color 0.22s ease;
     z-index: 2;
     transform: ${({ $chatOpen }) =>
       $chatOpen ? "translateX(-100%)" : "translateX(0)"};
@@ -100,12 +104,13 @@ export const AppChat = styled.main`
   flex: 1;
   min-width: 0;
   background: ${({ theme }) => theme.bg};
+  transition: background-color 0.22s ease;
 
   @media (max-width: 768px) {
     position: absolute;
     inset: 0;
     width: 100%;
-    transition: transform 0.25s ease;
+    transition: transform 0.25s ease, background-color 0.22s ease;
     z-index: 3;
     transform: ${({ $chatOpen }) =>
       $chatOpen ? "translateX(0)" : "translateX(100%)"};
@@ -126,6 +131,7 @@ export const ResizeHandleStyled = styled.div`
   cursor: col-resize;
   position: relative;
   background: transparent;
+  transition: background-color 0.18s ease;
 
   &:hover {
     background: rgba(0, 163, 255, 0.15);
