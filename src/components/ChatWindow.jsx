@@ -1,20 +1,14 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "../ThemeContext";
-// import { useRecorderAction } from "../hooks/useRecorderAction";
 import ProfileImg from "./ProfileImg";
-// import ComposerActionButton from "./ComposerActionButton";
 import { formatMessageTime } from "../utils/formatMessageTime";
 import {
-    // ButtonContextMenuStyled,
     ChatBackButtonStyled,
     ChatHeaderInfoStyled,
     ChatHeaderStyled,
     ChatStatusStyled,
     ChatTitleStyled,
     ChatWindowWrapStyled,
-    // ContextMenuCloseButtonStyled,
-    // ContextMenuDeleteButtonStyled,
-    // ContextMenuStyled,
     DayDividerStyled,
     DayDividerWrapStyled,
     InputMessageStyled,
@@ -30,6 +24,7 @@ import {
     MessageMetaStyled,
     MessageOuterStyled,
     MessagesWrapStyled,
+    SendButtonStyled,
 } from "../styles/messenger.styled";
 
 const formatDayLabel = dateString => {
@@ -59,12 +54,23 @@ const ChatWindow = ({
     onBack,
 }) => {
     const [messageText, setMessageText] = useState("");
+    const messagesEndRef = useRef(null);
 
     const { theme } = useTheme();
+    const messages = Array.isArray(activeMessages) ? activeMessages : [];
+    const hasText = messageText.trim().length > 0;
+    const lastMessageId = messages[messages.length - 1]?.id;
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+        });
+    }, [lastMessageId]);
 
     const handleSubmit = event => {
         event.preventDefault();
-        if (!messageText.trim()) return;
+        if (!hasText) return;
 
         onSendMessage(messageText);
         setMessageText("");
@@ -92,14 +98,13 @@ const ChatWindow = ({
             </ChatHeaderStyled>
 
             <MessagesWrapStyled>
-                {activeMessages.map((message, index) => {
-                    const isOwn = String(message.senderId) === currentUserId
-                    const isGrouped = isGroupedMessage(activeMessages, index);
-                    const showDayLabel = isNewDay(activeMessages, index);
+                {messages.map((message, index) => {
+                    const isOwn = String(message.senderId) === currentUserId;
+                    const isGrouped = isGroupedMessage(messages, index);
+                    const showDayLabel = isNewDay(messages, index);
 
                     return (
-                        <div key={message.id}
-                        >
+                        <div key={message.id}>
                             {showDayLabel && (
                                 <DayDividerWrapStyled>
                                     <DayDividerStyled>
@@ -145,25 +150,7 @@ const ChatWindow = ({
                     );
                 })}
 
-                {/* {menu.isOpen && (
-                    <ContextMenuStyled $x={menu.x} $y={menu.y}>
-                        <ContextMenuDeleteButtonStyled
-                            onClick={() => {
-                                closeMenu();
-                            }}
-                            aria-label="Удалить"
-                        >
-                            Удалить
-                        </ContextMenuDeleteButtonStyled>
-
-                        <ContextMenuCloseButtonStyled
-                            onClick={closeMenu}
-                            aria-label="Закрыть"
-                        >
-                            Закрыть
-                        </ContextMenuCloseButtonStyled>
-                    </ContextMenuStyled>
-                )} */}
+                <div ref={messagesEndRef} />
             </MessagesWrapStyled>
 
             <MessageFormStyled onSubmit={handleSubmit}>
@@ -181,15 +168,13 @@ const ChatWindow = ({
                 <MessageFormRightStyled>
                     <button aria-label="Прикрепить файл" type="button">📂</button>
 
-                    {/* <ComposerActionButton
-                        hasText={hasText}
-                        isRecording={isRecording}
-                        recordType={recordType}
-                        onPointerDown={handleRecordPointerDown}
-                        onClick={handleRecordClick}
-                    /> */}
-                    <button type="submit">O</button>
-
+                    <SendButtonStyled
+                        type="submit"
+                        disabled={!hasText}
+                        aria-label="Отправить сообщение"
+                    >
+                        ➤
+                    </SendButtonStyled>
                 </MessageFormRightStyled>
             </MessageFormStyled>
         </ChatWindowWrapStyled>
