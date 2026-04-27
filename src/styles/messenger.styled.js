@@ -1,4 +1,16 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+
+const messageIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+`;
 
 export const ChatInfoStyled = styled.div`
   display: flex;
@@ -19,8 +31,19 @@ export const ContactButtonInnerStyled = styled.div`
   gap: 16px;
   padding: 12px 0 12px 10px;
   width: 100%;
+  border-radius: 14px;
   background: ${({ $active, theme }) =>
     $active ? theme.contactBgColor : "transparent"};
+  transition: background-color 0.18s ease, transform 0.18s ease;
+
+  &:hover {
+    background: ${({ $active, theme }) =>
+      $active ? theme.contactBgColor : "rgba(0, 163, 255, 0.08)"};
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
 `;
 
 export const ContactTextWrapStyled = styled.div`
@@ -36,6 +59,9 @@ export const ContactNameStyled = styled.h2`
   width: 100%;
   max-width: 200px;
   font-size: 18px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 export const ContactPreviewStyled = styled.p`
@@ -73,6 +99,11 @@ export const ChatHeaderStyled = styled.div`
   gap: 18px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
   padding: 16px 0 16px 46px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  @media (max-width: 768px) {
+    padding: 14px 16px;
+  }
 `;
 
 export const ChatBackButtonStyled = styled.button`
@@ -84,6 +115,14 @@ export const ChatBackButtonStyled = styled.button`
     justify-content: center;
     font-size: 24px;
     margin-right: 6px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    transition: background-color 0.18s ease, transform 0.18s ease;
+
+    &:active {
+      transform: scale(0.94);
+    }
   }
 `;
 
@@ -91,10 +130,14 @@ export const ChatHeaderInfoStyled = styled.span`
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 0;
 `;
 
 export const ChatTitleStyled = styled.h2`
   color: ${({ theme }) => theme.contactNameColor};
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 export const ChatStatusStyled = styled.p`
@@ -109,8 +152,17 @@ export const MessagesWrapStyled = styled.div`
   padding: 16px 8px 26px 8px;
   display: flex;
   flex-direction: column;
+  scroll-behavior: smooth;
 
-  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(0, 163, 255, 0.28);
+  }
+
   @media (min-width: 768px) {
     padding: 16px 66px 26px 46px;
   }
@@ -135,6 +187,7 @@ export const MessageOuterStyled = styled.div`
   justify-content: ${({ $isOwn }) => ($isOwn ? "flex-end" : "flex-start")};
   width: 100%;
   margin-top: ${({ $mt }) => `${$mt}px`};
+  animation: ${messageIn} 0.18s ease both;
 `;
 
 export const MessageInnerStyled = styled.div`
@@ -192,6 +245,13 @@ export const MessageBubbleStyled = styled.p`
   overflow-wrap: anywhere;
   white-space: pre-wrap;
   text-align: start;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  }
 
   @media (min-width: 768px) {
     padding: 16px 24px;
@@ -209,6 +269,10 @@ export const InputMessageStyled = styled.input`
 
   &:focus {
     outline: none;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 18px;
   }
 `;
 
@@ -257,6 +321,12 @@ export const MessageFormStyled = styled.form`
   padding: 22px 46px 22px 46px;
   display: flex;
   justify-content: space-between;
+  gap: 16px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  @media (max-width: 768px) {
+    padding: 14px 16px;
+  }
 `;
 
 export const MessageFormLeftStyled = styled.div`
@@ -265,6 +335,7 @@ export const MessageFormLeftStyled = styled.div`
   align-items: center;
   gap: 16px;
   width: 100%;
+  min-width: 0;
 `;
 
 export const MessageFormRightStyled = styled.div`
@@ -275,15 +346,30 @@ export const MessageFormRightStyled = styled.div`
 `;
 
 export const SendButtonStyled = styled.button`
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background-color: #00a3ff;
   color: white;
-  padding: 10px 10px 10px 10px;
-  border-radius: 12px;
-  background-color: #00a2ff44;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  width: 100%;
-  min-width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+  transition: transform 0.18s ease, background-color 0.18s ease, opacity 0.18s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #19adff;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.35;
+  }
 
   svg {
     fill: #00A3FF;
@@ -291,8 +377,6 @@ export const SendButtonStyled = styled.button`
     height: 20px;
   }
 `;
-
-
 
 export const MicButtonStyled = styled.button`
   width: 42px;
